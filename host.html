@@ -896,8 +896,9 @@
                         discoveryMode: formData.discoveryMode, discoveryNote: formData.discoveryNote,
                         invitedCount: 0
                     });
-                    formData.gatherLink = `${window.location.origin}/vote.html?g=${gatheringId}`;
-                    formData.hostLink = `${window.location.origin}/dashboard.html?g=${gatheringId}`;
+                    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+                    formData.gatherLink = `${window.location.origin}${basePath}/vote.html?g=${gatheringId}`;
+                    formData.hostLink = `${window.location.origin}${basePath}/dashboard.html?g=${gatheringId}`;
                     formData.gatheringId = gatheringId;
                     goToStep(5);
                 } catch (error) {
