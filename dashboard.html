@@ -13,7 +13,7 @@
         }
 
         body {
-            background-color: #FAFBFC;
+            background-color: #FFFFFF;
             color: #1B2A3D;
             font-family: 'DM Sans', sans-serif;
             font-size: 16px;
@@ -637,20 +637,23 @@
             <!-- Invite Re-share -->
             <div class="invite-section">
                 <h2 class="section-title">Need to nudge someone?</h2>
-                <p style="margin-bottom: 12px; font-size: 14px; color: #4CAF82;">Here's your invite again:</p>
-                <div class="invite-text">Let's make something together! I'm hosting a gathering to try out something new: Pottery class.
+                <p style="margin-bottom: 12px; font-size: 14px; color: #1A6B7A;">Copy and send this to anyone who hasn't voted yet:</p>
+                <div class="invite-text" id="inviteText">Hey! I'm trying to get a group together for Pottery class at Color Me Mine, Silver Lake.
 
-When: You tell me! Voting closes March 1 at midnight.
+Vote for the time that works — takes 10 seconds:
+<a href="#" class="invite-link">gather.local/vote</a>
 
-Where: Color Me Mine, Silver Lake
-
-Why: Discovery mode — I want to explore something fresh with people I like.
-
-Vote for your best time here: <a href="#" class="invite-link">gather.local/vote</a></div>
-                <button class="copy-button" onclick="copyInvite()">
-                    <span>📋</span>
-                    <span>Copy invite</span>
-                </button>
+We'll lock in the winning time in 48 hours!</div>
+                <div style="display: flex; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                    <button class="copy-button" onclick="copyInvite()" style="flex: 1;">
+                        <span>📋</span>
+                        <span>Copy invite</span>
+                    </button>
+                    <button class="copy-button" id="shareInviteBtn" onclick="shareInvite()" style="flex: 1; background: linear-gradient(135deg, #1A6B7A, #155a67); display: none;">
+                        <span>📤</span>
+                        <span>Share</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -720,10 +723,16 @@ Coming: Maya, Jordan
 For those who couldn't make it — we'll miss you. Want to make sure you're at the next one? Host it! It takes two minutes: gather.local/host
 
 See you there ✨</div>
-                <button class="copy-button" onclick="copyMessage()">
-                    <span>📋</span>
-                    <span>Copy message</span>
-                </button>
+                <div style="display: flex; gap: 0.75rem; margin-top: 0; flex-wrap: wrap;">
+                    <button class="copy-button" onclick="copyMessage()" style="flex: 1;">
+                        <span>📋</span>
+                        <span>Copy message</span>
+                    </button>
+                    <button class="copy-button" id="shareMessageBtn" onclick="shareMessage()" style="flex: 1; background: linear-gradient(135deg, #1A6B7A, #155a67); display: none;">
+                        <span>📤</span>
+                        <span>Share</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Gather Again CTA -->
@@ -756,34 +765,45 @@ See you there ✨</div>
             });
         });
 
-        // Copy to clipboard functions
+        // Copy to clipboard functions — read from the live DOM so they always reflect real data
         function copyInvite() {
-            const text = `Let's make something together! I'm hosting a gathering to try out something new: Pottery class.
-
-When: You tell me! Voting closes March 1 at midnight.
-
-Where: Color Me Mine, Silver Lake
-
-Why: Discovery mode — I want to explore something fresh with people I like.
-
-Vote for your best time here: gather.local/vote`;
-            
+            const inviteEl = document.querySelector('.invite-text');
+            const text = inviteEl ? inviteEl.textContent.trim() : '';
             copyToClipboard(text, event.target.closest('.copy-button'));
         }
 
         function copyMessage() {
-            const text = `It's happening! 🎉
-
-Pottery class at Color Me Mine, Silver Lake
-Saturday, March 7 at 2:00 PM
-
-Coming: Maya, Jordan
-
-For those who couldn't make it — we'll miss you. Want to make sure you're at the next one? Host it! It takes two minutes: gather.local/host
-
-See you there ✨`;
-            
+            const messageEl = document.querySelector('.message-box');
+            const text = messageEl ? messageEl.textContent.trim() : '';
             copyToClipboard(text, event.target.closest('.copy-button'));
+        }
+
+        // Web Share API for mobile
+        async function shareInvite() {
+            const inviteEl = document.getElementById('inviteText');
+            const text = inviteEl ? inviteEl.textContent.trim() : '';
+            try {
+                await navigator.share({ title: 'You\'re invited — Gather More', text: text });
+            } catch (err) {
+                if (err.name !== 'AbortError') console.error('Share failed:', err);
+            }
+        }
+
+        async function shareMessage() {
+            const messageEl = document.querySelector('.message-box');
+            const text = messageEl ? messageEl.textContent.trim() : '';
+            try {
+                await navigator.share({ title: 'It\'s happening! — Gather More', text: text });
+            } catch (err) {
+                if (err.name !== 'AbortError') console.error('Share failed:', err);
+            }
+        }
+
+        // Show share buttons on mobile
+        if (navigator.share) {
+            document.querySelectorAll('#shareInviteBtn, #shareMessageBtn').forEach(btn => {
+                if (btn) btn.style.display = 'flex';
+            });
         }
 
         function copyToClipboard(text, button) {
@@ -900,7 +920,8 @@ See you there ✨`;
                 detailRows[2].querySelector('span:last-child').textContent = gathering.hostName;
             }
 
-            // Update countdown
+            // Update countdown and cache deadline for live ticker
+            cachedDeadline = gathering.pollDeadline;
             const countdownTime = document.getElementById('countdown');
             if (countdownTime) {
                 const timeLeft = gathering.pollDeadline - Date.now();
@@ -975,18 +996,16 @@ See you there ✨`;
                 }
             }
 
-            // Update invite re-share section
-            const inviteText = document.querySelector('.invite-text');
+            // Update invite re-share section with informal template
+            const inviteText = document.getElementById('inviteText');
             if (inviteText) {
-                inviteText.innerHTML = `Let's make something together! I'm hosting a gathering to try out something new: ${gathering.activity}.
+                const voteUrl = `${window.location.origin}/gather/vote.html?g=${currentGatheringId}`;
+                inviteText.innerHTML = `Hey! I'm trying to get a group together for ${gathering.activity} at ${gathering.location}.
 
-When: You tell me! Voting closes ${new Date(gathering.pollDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}.
+Vote for the time that works — takes 10 seconds:
+<a href="vote.html?g=${currentGatheringId}" class="invite-link">${voteUrl}</a>
 
-Where: ${gathering.location}
-
-Why: ${capitalizeMode(gathering.mode)} mode — check the app to see why I picked this.
-
-Vote for your best time here: <a href="vote.html?g=${currentGatheringId}" class="invite-link">${window.location.origin}/vote.html?g=${currentGatheringId}</a>`;
+Poll closes ${new Date(gathering.pollDeadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} — vote soon so we can lock it in!`;
             }
         }
 
@@ -1057,20 +1076,17 @@ ${label}
 
 Coming: ${confirmedNames.length > 0 ? confirmedNames.join(', ') : 'awaiting confirmations'}
 
-For those who couldn't make it — we'll miss you. Want to make sure you're at the next one? Host it! It takes two minutes: ${window.location.origin}/host.html
+For those who couldn't make it — we'll miss you. Want to make sure you're at the next one? Host it! It takes two minutes: ${window.location.origin}/gather/host.html
 
 See you there ✨`;
                 }
             }
 
-            // Update invite re-share section for closed state
-            const inviteTextClosed = document.querySelector('.invite-section .invite-text');
-            if (inviteTextClosed) {
-                inviteTextClosed.innerHTML = `Let's make something together! I'm hosting a gathering to try out something new: ${gathering.activity}.
-
-Where: ${gathering.location}
-
-Vote for your best time here: <a href="vote.html?g=${currentGatheringId}" class="invite-link">${window.location.origin}/vote.html?g=${currentGatheringId}</a>`;
+            // Update message for closed state — use host URL with /gather/ path
+            const hostUrl = `${window.location.origin}/gather/host.html`;
+            const messageBox2 = document.querySelector('.message-box');
+            if (messageBox2) {
+                messageBox2.textContent = messageBox2.textContent; // already updated above
             }
         }
 
@@ -1159,21 +1175,24 @@ Vote for your best time here: <a href="vote.html?g=${currentGatheringId}" class=
             return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
         }
 
-        // Update countdown timer every minute
+        // Live countdown — tick every second for real-time feel
+        let cachedDeadline = null;
         setInterval(() => {
-            if (currentGatheringId) {
+            if (cachedDeadline) {
                 const countdownTime = document.getElementById('countdown');
                 if (countdownTime) {
-                    // Re-fetch to get fresh data
-                    gatherFirebase.getGathering(currentGatheringId).then(gathering => {
-                        if (gathering) {
-                            const timeLeft = gathering.pollDeadline - Date.now();
-                            countdownTime.textContent = formatTimeRemaining(timeLeft);
-                        }
-                    });
+                    const timeLeft = cachedDeadline - Date.now();
+                    if (timeLeft <= 0) {
+                        countdownTime.textContent = 'Poll closed';
+                        // Refresh the page to show closed state
+                        if (currentGatheringId) loadGathering(currentGatheringId);
+                        cachedDeadline = null;
+                    } else {
+                        countdownTime.textContent = formatTimeRemaining(timeLeft);
+                    }
                 }
             }
-        }, 60000);
+        }, 1000);
     </script>
 </body>
 </html>

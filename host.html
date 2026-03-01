@@ -11,7 +11,7 @@
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background-color: #FAFBFC;
+            background-color: #FFFFFF;
             color: #1B2A3D;
             min-height: 100vh;
             display: flex;
@@ -703,6 +703,7 @@
                     <h1>You did it. That's all it takes.</h1>
                 </div>
                 <div class="success-subheader">Now there's just one thing left to do.</div>
+                <p style="font-size: 0.9rem; color: #FFB347; font-weight: 600; margin-bottom: 2rem; background: rgba(255, 179, 71, 0.08); padding: 0.75rem 1.25rem; border-radius: 8px; border-left: 3px solid #FFB347;">Your poll is live for 48 hours — share now so people have time to vote!</p>
 
                 <!-- Step 1: Send the message (HERO) -->
                 <div style="background: rgba(255, 107, 107, 0.04); border: 2px solid #FF6B6B; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; text-align: left;">
@@ -710,9 +711,12 @@
                         <span style="background: #FF6B6B; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">1</span>
                         <span style="font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 700; color: #1B2A3D;">Send this to your group chat</span>
                     </div>
-                    <p style="font-size: 0.88rem; color: #4A5B6E; margin-bottom: 1rem;">Your poll is live for 48 hours — share now so people have time to vote.</p>
-                    <div class="copy-content" id="messageContent" style="max-height: 180px;"></div>
-                    <button class="copy-btn" data-copy="message" style="margin-top: 0.75rem;">Copy message</button>
+                    <p style="font-size: 0.88rem; color: #4A5B6E; margin-bottom: 1rem;">Edit the message below however you like, then copy and paste it into your chat.</p>
+                    <textarea id="messageContent" style="width: 100%; min-height: 160px; padding: 1rem; border: 1px solid rgba(26, 107, 122, 0.15); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; line-height: 1.7; color: #1B2A3D; background: #FFFFFF; resize: vertical; outline: none; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#1A6B7A'" onblur="this.style.borderColor='rgba(26, 107, 122, 0.15)'"></textarea>
+                    <div style="display: flex; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                        <button class="copy-btn" id="copyMessageBtn" style="flex: 1;">Copy message</button>
+                        <button class="copy-btn" id="shareMessageBtn" style="flex: 1; background: linear-gradient(135deg, #1A6B7A, #155a67); display: none;">Share</button>
+                    </div>
                 </div>
 
                 <!-- Step 2: Bookmark dashboard -->
@@ -736,8 +740,8 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
 
     <script>
@@ -925,6 +929,13 @@
             const messageContent = document.getElementById('messageContent');
             const hostLinkContent = document.getElementById('hostLinkContent');
             const summary = document.getElementById('gatheringSummary');
+            const copyMessageBtn = document.getElementById('copyMessageBtn');
+            const shareMessageBtn = document.getElementById('shareMessageBtn');
+
+            // Show native share button on mobile
+            if (navigator.share) {
+                shareMessageBtn.style.display = 'block';
+            }
 
             const step5 = document.getElementById('step5');
             const observer = new MutationObserver(() => {
@@ -941,35 +952,47 @@
                         <div class="summary-item"><span class="summary-label">Times</span><span class="summary-value">${timeString}</span></div>
                     `;
 
-                    const deadline = new Date();
-                    deadline.setHours(deadline.getHours() + 48);
-                    const deadlineStr = deadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-                    let message = `${formData.hostName} is inviting you to ${formData.activity} at ${formData.location}! \n\nVote for the time that works for you: ${formData.gatherLink}\n\nThe time that works for most people wins — vote by ${deadlineStr}. No need to wait for the perfect date. Just show up.\n\nCan't make any of the times? No worries — there will always be a next one.`;
+                    let message = `Hey! I'm trying to get [names] together for ${formData.activity} at ${formData.location}.\n\n[Optional: anything you want people to know — why this group, what to expect, etc.]\n\nVote for the time that works for you — takes 10 seconds:\n${formData.gatherLink}\n\nWe'll lock in the winning time in 48 hours!`;
 
                     if (formData.discoveryMode) {
-                        let discoveryLine = 'This is an open gathering — bring someone you think the group would love.';
-                        if (formData.discoveryNote) discoveryLine += ` ${formData.discoveryNote}`;
-                        message = message.replace('Can\'t make any of the times?', discoveryLine + '\n\nCan\'t make any of the times?');
+                        message = `Hey! I'm trying to get a group together for ${formData.activity} at ${formData.location}. You don't all know each other yet, but I think you'll really hit it off.\n\n[Optional: anything else you want people to know]\n\nVote for the time that works for you — takes 10 seconds:\n${formData.gatherLink}\n\nWe'll lock in the winning time in 48 hours!`;
                     }
 
-                    messageContent.textContent = message;
-                    hostLinkContent.textContent = `${formData.hostLink}\n\nThis is your dashboard. Check back after 48 hours to see who's coming and get your confirmation message ready to share.`;
+                    messageContent.value = message;
+                    hostLinkContent.textContent = `${formData.hostLink}\n\nThis is your dashboard. Check back to see who's voted and the winning time.`;
                 }
             });
             observer.observe(step5, { attributes: true });
 
-            document.querySelectorAll('.copy-btn').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const type = btn.dataset.copy;
-                    const text = type === 'message' ? messageContent.textContent : hostLinkContent.textContent;
-                    try {
-                        await navigator.clipboard.writeText(text);
-                        btn.classList.add('copied');
-                        btn.textContent = 'Copied!';
-                        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = type === 'message' ? 'Copy message' : 'Copy link'; }, 2000);
-                    } catch (err) { console.error('Failed to copy:', err); }
-                });
+            // Copy message button
+            copyMessageBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(messageContent.value);
+                    copyMessageBtn.classList.add('copied');
+                    copyMessageBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyMessageBtn.classList.remove('copied'); copyMessageBtn.textContent = 'Copy message'; }, 2000);
+                } catch (err) { console.error('Failed to copy:', err); }
+            });
+
+            // Native share button (mobile)
+            shareMessageBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.share({
+                        title: `${formData.activity} — Gather More`,
+                        text: messageContent.value
+                    });
+                } catch (err) { if (err.name !== 'AbortError') console.error('Share failed:', err); }
+            });
+
+            // Copy dashboard link button
+            document.querySelector('.copy-btn[data-copy="link"]').addEventListener('click', async () => {
+                const btn = document.querySelector('.copy-btn[data-copy="link"]');
+                try {
+                    await navigator.clipboard.writeText(hostLinkContent.textContent);
+                    btn.classList.add('copied');
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy dashboard link'; }, 2000);
+                } catch (err) { console.error('Failed to copy:', err); }
             });
         }
 
