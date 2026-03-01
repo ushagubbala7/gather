@@ -11,13 +11,13 @@
 // ============= FIREBASE CONFIG =============
 // Replace these with your actual Firebase config values
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+   apiKey: "AIzaSyA5gzU47EMjXWP_5Z7R8RhgxkitcQboA5o",
+authDomain: "gather-eff54.firebaseapp.com",
+databaseURL: "https://gather-eff54-default-rtdb.firebaseio.com",
+projectId: "gather-eff54",
+storageBucket: "gather-eff54.firebasestorage.app",
+messagingSenderId: "450750628948",
+appId: "1:450750628948:web:356b3c01d58f0e12d6d9c1"
 };
 
 // Initialize Firebase
