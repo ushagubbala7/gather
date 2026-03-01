@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host a Gathering — Gather More</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #FAFBFC;
+            color: #1B2A3D;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(ellipse 500px 400px at 20% 30%, rgba(255, 107, 107, 0.03) 0%, transparent 70%),
+                radial-gradient(ellipse 400px 350px at 80% 70%, rgba(26, 107, 122, 0.03) 0%, transparent 70%);
+        }
+
+        /* Grain texture */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        .header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(26, 107, 122, 0.1);
+        }
+
+        .header a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1A6B7A;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .header a:hover { color: #FF6B6B; }
+        .header a::before { content: "←"; font-size: 1.1rem; }
+
+        .container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .progress-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background-color: rgba(26, 107, 122, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background-color: #FF6B6B;
+            width: 32px;
+            border-radius: 5px;
+        }
+
+        .progress-dot.complete {
+            background-color: #3CB371;
+        }
+
+        /* Steps */
+        .step {
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        .step.active { display: block; opacity: 1; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .step h1 {
+            font-family: 'Nunito', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #1B2A3D;
+            font-weight: 700;
+        }
+
+        .step h2 {
+            font-family: 'Nunito', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #1B2A3D;
+            font-weight: 700;
+        }
+
+        .step-subtitle {
+            color: #1A6B7A;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .step-description {
+            color: #1A6B7A;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Step 1: Name */
+        .name-input { margin: 2rem 0 3rem 0; }
+        .name-input input {
+            width: 100%;
+            max-width: 400px;
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid rgba(26, 107, 122, 0.25);
+            border-radius: 10px;
+            background-color: white;
+            color: #1B2A3D;
+            transition: all 0.3s ease;
+        }
+        .name-input input:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+        .name-input input::placeholder { color: #8A9AAD; }
+
+        /* Step 2: Activity */
+        .activity-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            margin: 2rem 0 3rem 0;
+            align-items: start;
+        }
+
+        .activity-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .activity-card {
+            padding: 1rem;
+            border: 2px solid rgba(26, 107, 122, 0.1);
+            border-radius: 12px;
+            background-color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(26, 107, 122, 0.04);
+        }
+        .activity-card:hover {
+            border-color: #1A6B7A;
+            box-shadow: 0 4px 14px rgba(26, 107, 122, 0.1);
+            transform: translateY(-1px);
+        }
+        .activity-card.selected {
+            background: linear-gradient(135deg, #1A6B7A, #155a67);
+            color: white;
+            border-color: #1A6B7A;
+            box-shadow: 0 4px 14px rgba(26, 107, 122, 0.2);
+        }
+
+        .custom-activity-input {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+        .custom-activity-input label {
+            font-weight: 600;
+            color: #1B2A3D;
+            min-width: fit-content;
+        }
+        .custom-activity-input input {
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid rgba(26, 107, 122, 0.25);
+            border-radius: 10px;
+            background-color: white;
+            color: #1B2A3D;
+            transition: all 0.3s ease;
+        }
+        .custom-activity-input input:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .activity-sidebar {
+            background: linear-gradient(135deg, rgba(255, 179, 71, 0.08), rgba(60, 179, 113, 0.08));
+            border-left: 4px solid #FFB347;
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+        .sidebar-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1A6B7A;
+        }
+        .sidebar-text {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #4A5B6E;
+        }
+
+        /* Step 3: Location */
+        .location-input-wrapper { margin: 2rem 0 1rem 0; }
+        .location-input-wrapper input {
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid rgba(26, 107, 122, 0.25);
+            border-radius: 10px;
+            background-color: white;
+            color: #1B2A3D;
+            transition: all 0.3s ease;
+        }
+        .location-input-wrapper input:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .location-suggestions {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(26, 107, 122, 0.06), rgba(60, 179, 113, 0.06));
+            border-radius: 12px;
+            border-left: 4px solid #3CB371;
+        }
+        .suggestions-label {
+            font-weight: 600;
+            color: #1B2A3D;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .suggestions-text {
+            color: #4A5B6E;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Step 4: Times */
+        .times-wrapper { margin: 2rem 0 3rem 0; }
+        .time-option {
+            background-color: white;
+            border: 2px solid rgba(26, 107, 122, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .time-option label {
+            font-weight: 600;
+            color: #1B2A3D;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 0.9rem;
+        }
+        .time-option input {
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 1px solid rgba(26, 107, 122, 0.2);
+            border-radius: 8px;
+            background-color: #FAFAFA;
+            color: #1B2A3D;
+            transition: all 0.3s ease;
+        }
+        .time-option input:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+        .time-inputs {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .time-inputs > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .add-time-btn {
+            padding: 0.75rem 1.5rem;
+            background-color: white;
+            border: 2px dashed #3CB371;
+            border-radius: 8px;
+            color: #3CB371;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .add-time-btn:hover { background-color: rgba(60, 179, 113, 0.06); }
+        .add-time-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .time-note {
+            color: #4A5B6E;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 179, 71, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid #FFB347;
+        }
+
+        /* Discovery section */
+        .discovery-section {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(255, 179, 71, 0.08));
+            border-radius: 12px;
+            border-left: 4px solid #FF6B6B;
+        }
+        .discovery-question {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1B2A3D;
+            margin-bottom: 1.5rem;
+        }
+        .discovery-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .toggle-checkbox {
+            width: 50px; height: 28px;
+            position: relative;
+            display: inline-block;
+        }
+        .toggle-checkbox input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s ease;
+            border-radius: 28px;
+        }
+        .toggle-slider:before {
+            position: absolute; content: "";
+            height: 22px; width: 22px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: 0.3s ease;
+            border-radius: 50%;
+        }
+        .toggle-checkbox input:checked + .toggle-slider {
+            background-color: #FF6B6B;
+        }
+        .toggle-checkbox input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        .toggle-label {
+            font-weight: 600;
+            color: #1B2A3D;
+            font-size: 0.95rem;
+        }
+        .discovery-note {
+            color: #4A5B6E;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+        }
+        .discovery-params-wrapper { display: none; margin-top: 1.5rem; }
+        .discovery-params-wrapper.visible { display: block; }
+        .discovery-params-wrapper label {
+            display: block;
+            font-weight: 600;
+            color: #1B2A3D;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .discovery-params-wrapper textarea {
+            width: 100%;
+            max-width: 500px;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid rgba(26, 107, 122, 0.25);
+            border-radius: 10px;
+            background-color: white;
+            color: #1B2A3D;
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+        .discovery-params-wrapper textarea:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        /* Step 5: Success */
+        .success-container {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .success-header h1 { margin-bottom: 0.5rem; }
+        .success-subheader {
+            color: #1A6B7A;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            font-weight: 500;
+        }
+        .gathering-summary {
+            background-color: white;
+            border: 2px solid rgba(26, 107, 122, 0.15);
+            border-radius: 14px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(26, 107, 122, 0.1);
+        }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-label { font-weight: 600; color: #1B2A3D; }
+        .summary-value { color: #1A6B7A; font-weight: 500; }
+
+        .copy-blocks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .copy-block {
+            background: rgba(26, 107, 122, 0.04);
+            border: 2px solid rgba(26, 107, 122, 0.12);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+        }
+        .copy-block-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1B2A3D;
+            margin-bottom: 1rem;
+        }
+        .copy-content {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #1B2A3D;
+            margin-bottom: 1rem;
+            word-break: break-all;
+            font-family: 'DM Sans', monospace;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .copy-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #1A6B7A;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .copy-btn:hover { background-color: #155a67; }
+        .copy-btn.copied { background-color: #3CB371; }
+
+        .success-note {
+            color: #4A5B6E;
+            font-size: 0.9rem;
+            padding: 1.2rem;
+            background: rgba(255, 179, 71, 0.08);
+            border-radius: 10px;
+            border-left: 4px solid #FFB347;
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .marketplace-note {
+            color: #4A5B6E;
+            font-size: 0.85rem;
+            padding: 1rem;
+            background: rgba(60, 179, 113, 0.06);
+            border-radius: 10px;
+            border-left: 4px solid #3CB371;
+            text-align: left;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+        .btn-back, .btn-next {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-back {
+            background-color: white;
+            color: #1A6B7A;
+            border: 2px solid rgba(26, 107, 122, 0.2);
+        }
+        .btn-back:hover:not(:disabled) { background-color: rgba(26, 107, 122, 0.05); }
+        .btn-next {
+            background: linear-gradient(135deg, #FF6B6B 0%, #e85d5d 50%, #FF6B6B 100%);
+            background-size: 200% 100%;
+            animation: btnShimmer 3s ease-in-out infinite;
+            color: white;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.25);
+        }
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(255, 107, 107, 0.3);
+        }
+        @keyframes btnShimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .btn-next:disabled {
+            background-color: rgba(255, 107, 107, 0.4);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            .activity-wrapper { grid-template-columns: 1fr; }
+            .activity-sidebar { position: static; }
+            .copy-blocks { grid-template-columns: 1fr; }
+            .step h1 { font-size: 1.8rem; }
+            .step h2 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <a href="index.html">Back to Gather More</a>
+    </div>
+
+    <div class="container">
+        <div class="progress-container">
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+
+        <!-- STEP 1: Name -->
+        <div class="step active" id="step1">
+            <h1>What's your name?</h1>
+            <p class="step-subtitle">We'll show this on the invitation.</p>
+            <div class="name-input">
+                <input type="text" id="hostName" placeholder="Your name" aria-label="Enter your name">
+            </div>
+            <div class="button-group">
+                <button class="btn-next" id="nextStep1" disabled>Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Activity Selection -->
+        <div class="step" id="step2">
+            <h2>Pick an activity</h2>
+            <p class="step-subtitle">What will you actually do together?</p>
+            <div class="activity-wrapper">
+                <div class="activity-left">
+                    <div class="activity-grid" id="activityGrid"></div>
+                    <div class="custom-activity-input">
+                        <label for="customActivity">Something else:</label>
+                        <input type="text" id="customActivity" placeholder="What have you got in mind?" aria-label="Enter custom activity">
+                    </div>
+                </div>
+                <div class="activity-sidebar">
+                    <div class="sidebar-title">A thought</div>
+                    <div class="sidebar-text" id="sidebarTip"></div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn-back" id="backStep2">Back</button>
+                <button class="btn-next" id="nextStep2" disabled>Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Location -->
+        <div class="step" id="step3">
+            <h2>Where will you gather?</h2>
+            <p class="step-subtitle">Be specific enough that people can find you.</p>
+            <div class="location-input-wrapper">
+                <input type="text" id="location" placeholder="Address or location" aria-label="Enter gathering location">
+            </div>
+            <div class="location-suggestions">
+                <div class="suggestions-label">Some ideas:</div>
+                <div class="suggestions-text" id="locationSuggestions"></div>
+            </div>
+            <div class="button-group">
+                <button class="btn-back" id="backStep3">Back</button>
+                <button class="btn-next" id="nextStep3" disabled>Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Times + Discovery -->
+        <div class="step" id="step4">
+            <h2>Suggest a few times</h2>
+            <p class="step-subtitle">Don't overthink this. The date that works for most people wins.</p>
+            <div class="times-wrapper" id="timesWrapper"></div>
+            <button class="add-time-btn" id="addTimeBtn">+ Add another time</button>
+            <div class="time-note">Poll closes 48 hours after you share the link</div>
+
+            <div class="discovery-section">
+                <div class="discovery-question">Want to invite new faces?</div>
+                <div class="discovery-toggle-wrapper">
+                    <label class="toggle-checkbox">
+                        <input type="checkbox" id="discoveryToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="discoveryToggle" class="toggle-label">Ask your friends to each bring someone new</label>
+                </div>
+                <div class="discovery-note">
+                    This is a discovery gathering — everyone brings someone they'd vouch for. The best introductions come from the people who already know you.
+                </div>
+                <div class="discovery-params-wrapper" id="discoveryParamsWrapper">
+                    <label for="discoveryNote">Any parameters for your people?</label>
+                    <textarea id="discoveryNote" placeholder="e.g. people in their 20s-30s, lives nearby, etc." aria-label="Enter discovery parameters"></textarea>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-back" id="backStep4">Back</button>
+                <button class="btn-next" id="nextStep4">Create Gathering</button>
+            </div>
+        </div>
+
+        <!-- STEP 5: Success -->
+        <div class="step" id="step5">
+            <div class="success-container">
+                <div class="success-header">
+                    <h1>You did it. That's all it takes.</h1>
+                </div>
+                <div class="success-subheader">Now there's just one thing left to do.</div>
+
+                <!-- Step 1: Send the message (HERO) -->
+                <div style="background: rgba(255, 107, 107, 0.04); border: 2px solid #FF6B6B; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <span style="background: #FF6B6B; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">1</span>
+                        <span style="font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 700; color: #1B2A3D;">Send this to your group chat</span>
+                    </div>
+                    <p style="font-size: 0.88rem; color: #4A5B6E; margin-bottom: 1rem;">Your poll is live for 48 hours — share now so people have time to vote.</p>
+                    <div class="copy-content" id="messageContent" style="max-height: 180px;"></div>
+                    <button class="copy-btn" data-copy="message" style="margin-top: 0.75rem;">Copy message</button>
+                </div>
+
+                <!-- Step 2: Bookmark dashboard -->
+                <div style="background: rgba(26, 107, 122, 0.04); border: 2px solid rgba(26, 107, 122, 0.12); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <span style="background: #1A6B7A; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">2</span>
+                        <span style="font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: 700; color: #1B2A3D;">Bookmark your dashboard</span>
+                    </div>
+                    <p style="font-size: 0.88rem; color: #4A5B6E; margin-bottom: 1rem;">Check back after the poll closes to see who's coming and get your confirmation message.</p>
+                    <div class="copy-content" id="hostLinkContent"></div>
+                    <button class="copy-btn" data-copy="link" style="margin-top: 0.75rem;">Copy dashboard link</button>
+                </div>
+
+                <!-- Summary -->
+                <div class="gathering-summary" id="gatheringSummary"></div>
+
+                <div class="marketplace-note">
+                    A quick note: Gatherings on Gather are always free and personal. If you're promoting a paid event or a business, this isn't the right platform.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const formData = {
+            hostName: '',
+            activity: '',
+            location: '',
+            times: [],
+            discoveryMode: false,
+            discoveryNote: '',
+            gatherLink: '',
+            hostLink: ''
+        };
+
+        const allActivities = [
+            'Walk', 'Coffee run', 'Pottery class', 'Dinner at someone\'s home',
+            'Dinner at a restaurant', 'Museum visit', 'Cooking class', 'Group hike',
+            'Board game night', 'Picnic in the park', 'Grocery run',
+            'Farmers market morning', 'Sunset drinks', 'Game night', 'Brunch',
+            'Backyard hangout'
+        ];
+
+        const universalTip = 'Pick something that carries the social weight for you. If people don\'t know each other well, go for something hands-on — pottery, a walk, a cooking class. If everyone already knows each other, the activity almost doesn\'t matter. Even "just hanging out" works.';
+
+        const locationSuggestions = 'A park, someone\'s home, your favorite coffee shop, a studio, your backyard — wherever feels right.';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupStep1();
+            setupActivitySelection();
+            setupLocationInput();
+            setupTimesSection();
+            setupDiscoveryToggle();
+            setupCopyButtons();
+            goToStep(1);
+        });
+
+        function setupStep1() {
+            const input = document.getElementById('hostName');
+            const btn = document.getElementById('nextStep1');
+            input.addEventListener('input', () => { btn.disabled = !input.value.trim(); });
+            btn.addEventListener('click', () => { formData.hostName = input.value.trim(); goToStep(2); });
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
+        }
+
+        function setupActivitySelection() {
+            const grid = document.getElementById('activityGrid');
+            const sidebar = document.getElementById('sidebarTip');
+            const customInput = document.getElementById('customActivity');
+            const nextBtn = document.getElementById('nextStep2');
+            const backBtn = document.getElementById('backStep2');
+
+            grid.innerHTML = '';
+            allActivities.forEach(activity => {
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+                card.textContent = activity;
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.activity-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    formData.activity = activity;
+                    customInput.value = '';
+                    nextBtn.disabled = false;
+                });
+                grid.appendChild(card);
+            });
+            sidebar.textContent = universalTip;
+
+            customInput.addEventListener('input', () => {
+                if (customInput.value.trim()) {
+                    document.querySelectorAll('.activity-card').forEach(c => c.classList.remove('selected'));
+                    formData.activity = customInput.value.trim();
+                    nextBtn.disabled = false;
+                } else { nextBtn.disabled = !formData.activity; }
+            });
+
+            nextBtn.addEventListener('click', () => goToStep(3));
+            backBtn.addEventListener('click', () => goToStep(1));
+        }
+
+        function setupLocationInput() {
+            const input = document.getElementById('location');
+            const suggestions = document.getElementById('locationSuggestions');
+            const nextBtn = document.getElementById('nextStep3');
+            const backBtn = document.getElementById('backStep3');
+            suggestions.textContent = locationSuggestions;
+
+            input.addEventListener('input', () => {
+                formData.location = input.value.trim();
+                nextBtn.disabled = !formData.location;
+            });
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !nextBtn.disabled) nextBtn.click(); });
+            nextBtn.addEventListener('click', () => goToStep(4));
+            backBtn.addEventListener('click', () => goToStep(2));
+        }
+
+        function setupTimesSection() {
+            const wrapper = document.getElementById('timesWrapper');
+            const addBtn = document.getElementById('addTimeBtn');
+            const nextBtn = document.getElementById('nextStep4');
+            const backBtn = document.getElementById('backStep4');
+
+            function createTimeOption(index) {
+                const option = document.createElement('div');
+                option.className = 'time-option';
+                option.innerHTML = `
+                    <div class="time-inputs">
+                        <div><label>Date ${index}</label><input type="date" data-time-index="${index}" data-type="date" required></div>
+                        <div><label>Time ${index}</label><input type="time" data-time-index="${index}" data-type="time" required></div>
+                    </div>
+                `;
+                return option;
+            }
+
+            function updateTimes() {
+                const dateInputs = wrapper.querySelectorAll('input[data-type="date"]');
+                const timeInputs = wrapper.querySelectorAll('input[data-type="time"]');
+                formData.times = [];
+                dateInputs.forEach((dateInput, i) => {
+                    const timeInput = timeInputs[i];
+                    if (dateInput.value && timeInput.value) {
+                        formData.times.push({ date: dateInput.value, time: timeInput.value });
+                    }
+                });
+                nextBtn.disabled = formData.times.length < 2;
+                addBtn.disabled = wrapper.children.length >= 6;
+            }
+
+            wrapper.addEventListener('change', updateTimes);
+            wrapper.addEventListener('input', updateTimes);
+            wrapper.innerHTML = '';
+            wrapper.appendChild(createTimeOption(1));
+            wrapper.appendChild(createTimeOption(2));
+
+            addBtn.addEventListener('click', () => {
+                if (wrapper.children.length < 6) {
+                    wrapper.appendChild(createTimeOption(wrapper.children.length + 1));
+                    updateTimes();
+                }
+            });
+
+            nextBtn.addEventListener('click', async () => {
+                nextBtn.disabled = true;
+                nextBtn.textContent = 'Creating...';
+                try {
+                    const timeOptions = formData.times.map(t => ({
+                        date: t.date, time: t.time,
+                        label: new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' }) + ' at ' + t.time
+                    }));
+                    const gatheringId = await gatherFirebase.createGathering({
+                        hostName: formData.hostName, activity: formData.activity,
+                        location: formData.location, timeOptions: timeOptions,
+                        discoveryMode: formData.discoveryMode, discoveryNote: formData.discoveryNote,
+                        invitedCount: 0
+                    });
+                    formData.gatherLink = `${window.location.origin}/vote.html?g=${gatheringId}`;
+                    formData.hostLink = `${window.location.origin}/dashboard.html?g=${gatheringId}`;
+                    formData.gatheringId = gatheringId;
+                    goToStep(5);
+                } catch (error) {
+                    console.error('Error creating gathering:', error);
+                    alert('Error creating gathering. Please try again.');
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = 'Create Gathering';
+                }
+            });
+
+            backBtn.addEventListener('click', () => goToStep(3));
+            updateTimes();
+        }
+
+        function setupDiscoveryToggle() {
+            const toggle = document.getElementById('discoveryToggle');
+            const paramsWrapper = document.getElementById('discoveryParamsWrapper');
+            const paramsInput = document.getElementById('discoveryNote');
+
+            toggle.addEventListener('change', () => {
+                formData.discoveryMode = toggle.checked;
+                if (toggle.checked) { paramsWrapper.classList.add('visible'); }
+                else { paramsWrapper.classList.remove('visible'); paramsInput.value = ''; formData.discoveryNote = ''; }
+            });
+            paramsInput.addEventListener('input', () => { formData.discoveryNote = paramsInput.value.trim(); });
+        }
+
+        function setupCopyButtons() {
+            const messageContent = document.getElementById('messageContent');
+            const hostLinkContent = document.getElementById('hostLinkContent');
+            const summary = document.getElementById('gatheringSummary');
+
+            const step5 = document.getElementById('step5');
+            const observer = new MutationObserver(() => {
+                if (step5.classList.contains('active')) {
+                    const timeString = formData.times.map(t => {
+                        const date = new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+                        return `${date} at ${t.time}`;
+                    }).join(', ');
+
+                    summary.innerHTML = `
+                        <div class="summary-item"><span class="summary-label">Host</span><span class="summary-value">${formData.hostName}</span></div>
+                        <div class="summary-item"><span class="summary-label">Activity</span><span class="summary-value">${formData.activity}</span></div>
+                        <div class="summary-item"><span class="summary-label">Location</span><span class="summary-value">${formData.location}</span></div>
+                        <div class="summary-item"><span class="summary-label">Times</span><span class="summary-value">${timeString}</span></div>
+                    `;
+
+                    const deadline = new Date();
+                    deadline.setHours(deadline.getHours() + 48);
+                    const deadlineStr = deadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                    let message = `${formData.hostName} is inviting you to ${formData.activity} at ${formData.location}! \n\nVote for the time that works for you: ${formData.gatherLink}\n\nThe time that works for most people wins — vote by ${deadlineStr}. No need to wait for the perfect date. Just show up.\n\nCan't make any of the times? No worries — there will always be a next one.`;
+
+                    if (formData.discoveryMode) {
+                        let discoveryLine = 'This is an open gathering — bring someone you think the group would love.';
+                        if (formData.discoveryNote) discoveryLine += ` ${formData.discoveryNote}`;
+                        message = message.replace('Can\'t make any of the times?', discoveryLine + '\n\nCan\'t make any of the times?');
+                    }
+
+                    messageContent.textContent = message;
+                    hostLinkContent.textContent = `${formData.hostLink}\n\nThis is your dashboard. Check back after 48 hours to see who's coming and get your confirmation message ready to share.`;
+                }
+            });
+            observer.observe(step5, { attributes: true });
+
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const type = btn.dataset.copy;
+                    const text = type === 'message' ? messageContent.textContent : hostLinkContent.textContent;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        btn.classList.add('copied');
+                        btn.textContent = 'Copied!';
+                        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = type === 'message' ? 'Copy message' : 'Copy link'; }, 2000);
+                    } catch (err) { console.error('Failed to copy:', err); }
+                });
+            });
+        }
+
+        function goToStep(stepNum) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(`step${stepNum}`).classList.add('active');
+            updateProgress(stepNum);
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateProgress(currentStep) {
+            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+                const stepNum = index + 1;
+                dot.classList.remove('active', 'complete');
+                if (stepNum === currentStep) dot.classList.add('active');
+                else if (stepNum < currentStep) dot.classList.add('complete');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Philosophy — Gather More</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #FAFBFC;
+            color: #1B2A3D;
+            line-height: 1.6;
+        }
+        /* Grain texture */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+        h1, h2, h3 { font-family: 'Nunito', sans-serif; line-height: 1.2; }
+        a { color: #1A6B7A; text-decoration: none; transition: color 0.3s ease; }
+        a:hover { color: #FF6B6B; }
+
+        /* Nav (teal) */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: linear-gradient(180deg, rgba(26, 107, 122, 0.95), rgba(26, 107, 122, 0.88));
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s ease;
+        }
+        nav.scrolled { background: rgba(26, 107, 122, 0.97); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12); }
+        .nav-container {
+            max-width: 1100px; margin: 0 auto; padding: 1.1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-family: 'Nunito', sans-serif; font-size: 1.5rem;
+            font-weight: 800; color: #FFFFFF; letter-spacing: -0.01em;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .logo-dots { display: flex; gap: 3px; align-items: flex-end; }
+        .logo-dots span { display: block; border-radius: 50%; }
+        .logo-dots span:nth-child(1) { width: 8px; height: 8px; background: #FF6B6B; }
+        .logo-dots span:nth-child(2) { width: 6px; height: 6px; background: #FFB347; margin-bottom: 2px; }
+        .logo-dots span:nth-child(3) { width: 7px; height: 7px; background: #3CB371; }
+        .nav-links { display: flex; gap: 2.5rem; align-items: center; list-style: none; }
+        .nav-links a { font-size: 0.95rem; color: rgba(255, 255, 255, 0.85); font-weight: 500; }
+        .nav-links a:hover { color: #FFB347; }
+        .nav-cta {
+            background: rgba(255, 255, 255, 0.15); color: #FFFFFF !important;
+            padding: 0.7rem 1.5rem; border-radius: 50px; font-weight: 600; font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+        }
+        .nav-cta:hover { background: rgba(255, 255, 255, 0.25); color: #FFFFFF !important; }
+
+        /* Content */
+        .content {
+            max-width: 650px; margin: 0 auto; padding: 8rem 2rem 3rem;
+            position: relative;
+        }
+        .content::before {
+            content: '';
+            position: absolute; top: 6rem; right: -100px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(255, 179, 71, 0.15) 0%, transparent 70%);
+            border-radius: 50%; z-index: -1;
+        }
+
+        .section-label {
+            font-size: 0.85rem; color: #3CB371; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1.5rem;
+        }
+
+        .content h1 {
+            font-size: clamp(1.8rem, 5vw, 2.6rem);
+            margin-bottom: 2rem;
+        }
+
+        .content p {
+            font-size: 1.05rem; line-height: 1.85; margin-bottom: 1.5rem; color: #1B2A3D;
+        }
+
+        .pull-quote {
+            font-size: 1.3rem; line-height: 1.6; font-style: italic;
+            color: #1A6B7A; margin: 2.5rem 0; padding: 1.2rem 0 1.2rem 1.5rem;
+            border-left: 4px solid #FFB347; font-family: 'Nunito', sans-serif;
+            background: linear-gradient(90deg, rgba(255, 179, 71, 0.06) 0%, transparent 100%);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Section divider */
+        .section-break {
+            max-width: 650px; margin: 1rem auto 3rem; padding: 0 2rem;
+        }
+        .section-break hr {
+            border: none;
+            border-top: 2px solid rgba(255, 107, 107, 0.15);
+        }
+
+        .section-two {
+            max-width: 650px; margin: 0 auto; padding: 0 2rem 3rem;
+            position: relative;
+        }
+        .section-two::before {
+            content: '';
+            position: absolute; top: -2rem; left: -80px;
+            width: 160px; height: 160px;
+            background: radial-gradient(circle, rgba(60, 179, 113, 0.1) 0%, transparent 70%);
+            border-radius: 50%; z-index: -1;
+        }
+        .section-two .section-label { margin-bottom: 1.5rem; }
+        .section-two h2 { font-size: clamp(1.5rem, 4vw, 2.2rem); margin-bottom: 1.5rem; }
+        .section-two p { font-size: 1.05rem; line-height: 1.85; margin-bottom: 1.5rem; color: #1B2A3D; }
+
+        /* Principles */
+        .principles-section {
+            max-width: 650px; margin: 0 auto; padding: 2rem 2rem 4rem;
+        }
+        .principles-section h2 {
+            font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 2rem;
+        }
+        .principle {
+            margin-bottom: 2rem; padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(26, 107, 122, 0.1);
+        }
+        .principle:last-child { border-bottom: none; }
+        .principle-num {
+            font-size: 0.75rem; color: #FF6B6B; font-weight: 700;
+            margin-bottom: 0.2rem; letter-spacing: 0.05em;
+        }
+        .principle h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #1A6B7A; }
+        .principle p { font-size: 0.95rem; line-height: 1.75; color: #4A5B6E; margin-bottom: 0; }
+
+        /* Marketplace note */
+        .marketplace-note {
+            max-width: 650px; margin: 0 auto; padding: 0 2rem 3rem;
+        }
+        .marketplace-box {
+            background: rgba(60, 179, 113, 0.08);
+            border-left: 4px solid #3CB371;
+            border-radius: 0 12px 12px 0;
+            padding: 1.4rem 1.6rem;
+        }
+        .marketplace-box p { font-size: 0.95rem; line-height: 1.75; color: #4A5B6E; margin-bottom: 0; }
+        .marketplace-box strong { color: #1B2A3D; }
+
+        /* CTA */
+        .cta {
+            text-align: center; padding: 2rem 2rem 4rem;
+        }
+        .cta a {
+            display: inline-block; background: linear-gradient(135deg, #FF6B6B, #e85d5d); color: #FFFFFF;
+            padding: 1rem 2.4rem; border-radius: 50px; font-size: 1rem;
+            font-weight: 600; transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+        }
+        .cta a:hover { background: linear-gradient(135deg, #e85d5d, #d94f4f); color: #FFFFFF; transform: translateY(-3px); box-shadow: 0 8px 28px rgba(255, 107, 107, 0.35); }
+
+        /* Footer */
+        footer {
+            background-color: #1B2A3D; color: #E8ECF0; padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .footer-logo { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.2rem; color: #FFB347; }
+        .footer-tagline { font-size: 0.85rem; color: #3CB371; margin-bottom: 0.8rem; }
+        .footer-note { font-size: 0.75rem; color: #5A6B7E; }
+
+        /* Animations */
+        .fade-in { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 480px) {
+            .nav-links li:first-child { display: none; }
+            .content { padding: 6rem 1.5rem 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <span class="logo-dots"><span></span><span></span><span></span></span>
+                Gather More
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">← Back</a></li>
+                <li><a href="host.html" class="nav-cta">Host a Gathering</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Section 1: Why gathering gets hard -->
+    <div class="content">
+        <p class="section-label">Why gathering gets hard</p>
+
+        <h1>You have people you love. You just haven't seen them in months.</h1>
+
+        <div class="fade-in">
+            <p>It's not that you don't care. You think about them all the time. You send the "we should hang out" text. You mean it. But then the scheduling starts — the back-and-forth, the finding a date, the one person who's never free — and somewhere in that mess, the momentum dies. Another almost-plan that never quite happened.</p>
+
+            <p>Adult friendship doesn't die from lack of love. It dies from logistics. The insistence that everyone has to be free on the same night means instead of hanging out next week, you're hanging out next month. Or never.</p>
+
+            <p class="pull-quote">The magic was never in the planning. It was in the showing up.</p>
+
+            <p>We built Gather to fix that. The date that works for most people wins. If someone can't make it, they'll catch the next one — or better yet, they'll host it. And if nobody picks up the baton? That's okay too. Not every group is meant to last forever. Some are seasonal. Some were exactly what you needed for exactly that time.</p>
+        </div>
+    </div>
+
+    <div class="section-break"><hr></div>
+
+    <!-- Section 2: Why your circle should keep growing -->
+    <div class="section-two">
+        <p class="section-label">Why your circle should keep growing</p>
+
+        <h2>Your friends know incredible people. You just haven't met them yet.</h2>
+
+        <div class="fade-in">
+            <p>The best introductions don't come from algorithms. They come from the people who already know and love you saying "you have to meet this person." Your friends are the best matchmakers you have — not for romance, but for connection.</p>
+
+            <p>Discovery gatherings invite everyone to bring someone the group hasn't met. No profiles, no swiping. Just a warm introduction over a shared experience. Meeting new people will only ever add to your life. It never subtracts.</p>
+
+            <p>And the beautiful thing is: it only takes one person to say "let's do this." You don't need to be a social butterfly. You just need to care enough to press the button.</p>
+        </div>
+    </div>
+
+    <div class="section-break"><hr></div>
+
+    <!-- Principles -->
+    <div class="principles-section">
+        <h2>What We Believe</h2>
+
+        <div class="fade-in">
+            <div class="principle">
+                <div class="principle-num">01</div>
+                <h3>Hosting should be this easy</h3>
+                <p>You're not planning a dinner party. You're picking an activity that does the social heavy lifting, pressing a button, and showing up. A pottery class, a walk, a grocery run — the experience carries the weight so you don't have to. The bar is that low, and that's the point.</p>
+            </div>
+
+            <div class="principle">
+                <div class="principle-num">02</div>
+                <h3>Go with most, not all</h3>
+                <p>Stop waiting for the perfect date that works for everyone. It doesn't exist. Go with what works for most people, and host again soon for the ones who missed it. If they have FOMO, that's their invitation to host the next one.</p>
+            </div>
+
+            <div class="principle">
+                <div class="principle-num">03</div>
+                <h3>Keep showing up</h3>
+                <p>One low-key walk every week builds more connection than one ambitious dinner party every quarter. Make gathering a habit, not an occasion. Frequency beats intensity, every time.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Marketplace note -->
+    <div class="marketplace-note">
+        <div class="marketplace-box fade-in">
+            <p><strong>A note on trust.</strong> Gather will never be a marketplace. Gatherings here are always personal, always free, never commercial. If you're promoting a paid event or a business, this isn't the platform for it. We don't monitor this — we trust you. But the moment gatherings become transactional, the thing that makes them special breaks. Keep it personal. Keep it free.</p>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta fade-in">
+        <a href="host.html">Host a Gathering →</a>
+    </div>
+
+    <footer>
+        <div class="footer-logo">Gather More</div>
+        <div class="footer-tagline">Built with love for the people who keep showing up.</div>
+        <div class="footer-note">&copy; 2026 Gather More</div>
+    </footer>
+
+    <script>
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

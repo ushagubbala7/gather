@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Gather More</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #FAFBFC;
+            color: #1B2A3D;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        /* Header and Navigation */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(26, 107, 122, 0.1);
+        }
+
+        .back-link {
+            color: #1A6B7A;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #FF6B6B;
+        }
+
+        .state-toggle {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .toggle-btn {
+            padding: 4px 8px;
+            border: 1px solid #1A6B7A;
+            background: transparent;
+            color: #1A6B7A;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: #1A6B7A;
+            color: #FFFFFF;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(26, 107, 122, 0.1);
+        }
+
+        /* Page Title */
+        .page-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #1B2A3D;
+        }
+
+        /* Gathering Summary Card */
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .summary-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .mode-badge {
+            display: inline-block;
+            background: #FF6B6B;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .summary-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-label {
+            color: #1A6B7A;
+            font-weight: 500;
+            min-width: 70px;
+        }
+
+        /* Countdown */
+        .countdown-section {
+            background: rgba(255, 179, 71, 0.08);
+            border-left: 4px solid #FFB347;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .countdown-label {
+            font-size: 13px;
+            color: #1A6B7A;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .countdown-time {
+            font-family: 'Nunito', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: #FFB347;
+        }
+
+        /* Live Results Section */
+        .results-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1B2A3D;
+        }
+
+        .results-note {
+            background: rgba(60, 179, 113, 0.05);
+            border-left: 4px solid #3CB371;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1B2A3D;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .time-option {
+            background: white;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .time-option.winner {
+            border-color: #FF6B6B;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .time-option:hover {
+            border-color: #FF6B6B;
+        }
+
+        .time-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .time-display {
+            font-family: 'Nunito', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1B2A3D;
+        }
+
+        .vote-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1A6B7A;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .winner-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #FF6B6B;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .voter-names {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .voter-name {
+            background: rgba(26, 107, 122, 0.15);
+            color: #1B2A3D;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .response-count {
+            font-size: 14px;
+            color: #1A6B7A;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Results Closed State */
+        .winning-time-card {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 179, 71, 0.08) 100%);
+            border: 2px solid #FF6B6B;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .winning-date {
+            font-family: 'Nunito', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: #FF6B6B;
+            margin-bottom: 12px;
+        }
+
+        .winning-details {
+            font-size: 18px;
+            color: #1B2A3D;
+        }
+
+        /* Confirmations Section */
+        .confirmations-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+        }
+
+        .confirmation-group {
+            margin-bottom: 24px;
+        }
+
+        .confirmation-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .group-title {
+            font-weight: 600;
+            color: #1A6B7A;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .names-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .person-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(26, 107, 122, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1B2A3D;
+        }
+
+        .person-tag.confirmed {
+            background: rgba(60, 179, 113, 0.15);
+            color: #3CB371;
+        }
+
+        .person-tag.pending {
+            background: rgba(26, 107, 122, 0.08);
+            color: #1B2A3D;
+        }
+
+        .person-tag.unavailable {
+            background: rgba(200, 200, 200, 0.15);
+            color: #888;
+        }
+
+        .person-tag.nexttime {
+            background: rgba(60, 179, 113, 0.1);
+            color: #3CB371;
+        }
+
+        .status-icon {
+            font-size: 14px;
+        }
+
+        .confirmation-summary {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(26, 107, 122, 0.1);
+            font-size: 15px;
+            color: #1B2A3D;
+        }
+
+        .affirmation {
+            font-weight: 500;
+            color: #FF6B6B;
+        }
+
+        /* Message Card */
+        .message-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+        }
+
+        .message-header {
+            font-family: 'Nunito', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1B2A3D;
+        }
+
+        .message-box {
+            background: #FAFAFA;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'DM Sans', sans-serif;
+            color: #1B2A3D;
+        }
+
+        .copy-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.25);
+        }
+
+        .copy-button:hover {
+            background: #e85d5d;
+        }
+
+        .copy-button.copied {
+            background: #3CB371;
+        }
+
+        /* Invite Section */
+        .invite-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+        }
+
+        .invite-text {
+            background: #FAFAFA;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            color: #1B2A3D;
+        }
+
+        .invite-link {
+            color: #1A6B7A;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .invite-link:hover {
+            text-decoration: underline;
+        }
+
+        /* CTA Buttons */
+        .cta-section {
+            margin-bottom: 40px;
+        }
+
+        .primary-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 16px;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+            font-family: 'DM Sans', sans-serif;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.25);
+        }
+
+        .primary-button:hover {
+            background: #e85d5d;
+        }
+
+        .button-description {
+            font-size: 13px;
+            color: #1A6B7A;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        /* Hidden state */
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 16px;
+            }
+
+            .page-title {
+                font-size: 32px;
+                margin-bottom: 24px;
+            }
+
+            .summary-card {
+                padding: 16px;
+            }
+
+            .winning-time-card {
+                padding: 24px;
+            }
+
+            .winning-date {
+                font-size: 24px;
+            }
+
+            .winning-details {
+                font-size: 16px;
+            }
+
+            .time-display {
+                font-size: 16px;
+            }
+
+            .state-toggle {
+                font-size: 11px;
+            }
+
+            .toggle-btn {
+                padding: 3px 6px;
+                font-size: 11px;
+            }
+        }
+    </style>
+    <!-- Firebase SDK (Compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    </head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-link">← Back to Gather More</a>
+            <div class="state-toggle">
+                <span>Demo:</span>
+                <button class="toggle-btn active" data-state="open">Poll Open</button>
+                <button class="toggle-btn" data-state="closed">Poll Closed</button>
+            </div>
+        </div>
+
+        <!-- POLL OPEN STATE -->
+        <div id="state-open" class="state-content">
+            <h1 class="page-title">Your gathering is coming together</h1>
+
+            <!-- Gathering Summary -->
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div>
+                        <h2 class="summary-title">Pottery class</h2>
+                        <span class="mode-badge">Discovery</span>
+                    </div>
+                </div>
+                <div class="summary-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Activity:</span>
+                        <span>Pottery class</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Location:</span>
+                        <span>Color Me Mine, Silver Lake</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Host:</span>
+                        <span>Usha</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Countdown -->
+            <div class="countdown-section">
+                <div class="countdown-label">Poll closes in</div>
+                <div class="countdown-time" id="countdown">2 hours, 15 minutes</div>
+            </div>
+
+            <!-- Live Results -->
+            <div class="results-section">
+                <h2 class="section-title">Live results</h2>
+
+                <div class="results-note">
+                    Sit tight — you'll have everything you need once the poll closes. In the meantime, the votes are coming in live.
+                </div>
+
+                <div class="response-count">4 of 6 people have voted</div>
+
+                <!-- Time Options -->
+                <div class="time-option winner">
+                    <div class="time-header">
+                        <span class="time-display">Saturday, March 7 at 2:00 PM</span>
+                        <div style="display: flex; gap: 8px;">
+                            <span class="winner-badge">✓ Leading</span>
+                            <span class="vote-count">3</span>
+                        </div>
+                    </div>
+                    <div class="voter-names">
+                        <span class="voter-name">Maya</span>
+                        <span class="voter-name">Jordan</span>
+                        <span class="voter-name">Alex</span>
+                    </div>
+                </div>
+
+                <div class="time-option">
+                    <div class="time-header">
+                        <span class="time-display">Sunday, March 8 at 11:00 AM</span>
+                        <span class="vote-count">2</span>
+                    </div>
+                    <div class="voter-names">
+                        <span class="voter-name">Maya</span>
+                        <span class="voter-name">Sam</span>
+                    </div>
+                </div>
+
+                <div class="time-option">
+                    <div class="time-header">
+                        <span class="time-display">Tuesday, March 10 at 6:30 PM</span>
+                        <span class="vote-count">1</span>
+                    </div>
+                    <div class="voter-names">
+                        <span class="voter-name">Jordan</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invite Re-share -->
+            <div class="invite-section">
+                <h2 class="section-title">Need to nudge someone?</h2>
+                <p style="margin-bottom: 12px; font-size: 14px; color: #4CAF82;">Here's your invite again:</p>
+                <div class="invite-text">Let's make something together! I'm hosting a gathering to try out something new: Pottery class.
+
+When: You tell me! Voting closes March 1 at midnight.
+
+Where: Color Me Mine, Silver Lake
+
+Why: Discovery mode — I want to explore something fresh with people I like.
+
+Vote for your best time here: <a href="#" class="invite-link">gather.local/vote</a></div>
+                <button class="copy-button" onclick="copyInvite()">
+                    <span>📋</span>
+                    <span>Copy invite</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- POLL CLOSED STATE -->
+        <div id="state-closed" class="state-content hidden">
+            <h1 class="page-title">The votes are in! Here's your plan.</h1>
+
+            <!-- Winning Time -->
+            <div class="winning-time-card">
+                <div class="winning-date">Saturday, March 7 at 2:00 PM</div>
+                <div class="winning-details">Pottery class at Color Me Mine, Silver Lake</div>
+            </div>
+
+            <!-- Confirmations -->
+            <div class="confirmations-section">
+                <h2 class="section-title">Who's coming</h2>
+
+                <div class="confirmation-group">
+                    <div class="group-title">✓ Confirmed</div>
+                    <div class="names-list">
+                        <span class="person-tag confirmed">
+                            <span class="status-icon">✓</span>
+                            <span>Maya</span>
+                        </span>
+                        <span class="person-tag confirmed">
+                            <span class="status-icon">✓</span>
+                            <span>Jordan</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="confirmation-group">
+                    <div class="group-title">⏳ Voted but not confirmed yet</div>
+                    <div class="names-list">
+                        <span class="person-tag pending">
+                            <span class="status-icon">⏳</span>
+                            <span>Alex</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="confirmation-group">
+                    <div class="group-title">💙 Can't make it</div>
+                    <div class="names-list">
+                        <span class="person-tag unavailable">
+                            <span class="status-icon">💙</span>
+                            <span>Sam</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="confirmation-summary">
+                    <strong>2 of 4 confirmed.</strong> <span class="affirmation">That's a gathering. You're good to go.</span>
+                </div>
+            </div>
+
+            <!-- Ready-made Message -->
+            <div class="message-card">
+                <h2 class="message-header">Drop this in your group chat:</h2>
+                <div class="message-box">It's happening! 🎉
+
+Pottery class at Color Me Mine, Silver Lake
+Saturday, March 7 at 2:00 PM
+
+Coming: Maya, Jordan
+
+For those who couldn't make it — we'll miss you. Want to make sure you're at the next one? Host it! It takes two minutes: gather.local/host
+
+See you there ✨</div>
+                <button class="copy-button" onclick="copyMessage()">
+                    <span>📋</span>
+                    <span>Copy message</span>
+                </button>
+            </div>
+
+            <!-- Gather Again CTA -->
+            <div class="cta-section">
+                <a href="host.html" class="primary-button">
+                    <span>+</span>
+                    <span>Gather Again</span>
+                </a>
+                <p class="button-description">When this one's done, keep the momentum going. Or pass the baton — anyone can host the next one.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State toggle functionality
+        const stateButtons = document.querySelectorAll('.toggle-btn');
+        const stateContents = document.querySelectorAll('.state-content');
+
+        stateButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const state = this.dataset.state;
+                
+                // Update button states
+                stateButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update content visibility
+                stateContents.forEach(content => content.classList.add('hidden'));
+                document.getElementById(`state-${state}`).classList.remove('hidden');
+            });
+        });
+
+        // Copy to clipboard functions
+        function copyInvite() {
+            const text = `Let's make something together! I'm hosting a gathering to try out something new: Pottery class.
+
+When: You tell me! Voting closes March 1 at midnight.
+
+Where: Color Me Mine, Silver Lake
+
+Why: Discovery mode — I want to explore something fresh with people I like.
+
+Vote for your best time here: gather.local/vote`;
+            
+            copyToClipboard(text, event.target.closest('.copy-button'));
+        }
+
+        function copyMessage() {
+            const text = `It's happening! 🎉
+
+Pottery class at Color Me Mine, Silver Lake
+Saturday, March 7 at 2:00 PM
+
+Coming: Maya, Jordan
+
+For those who couldn't make it — we'll miss you. Want to make sure you're at the next one? Host it! It takes two minutes: gather.local/host
+
+See you there ✨`;
+            
+            copyToClipboard(text, event.target.closest('.copy-button'));
+        }
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span>✓</span><span>Copied!</span>';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            });
+        }
+
+        // Countdown timer (demo - shows static time)
+        function formatCountdown() {
+            // In a real app, this would calculate based on actual poll close time
+            return '2 hours, 15 minutes';
+        }
+
+        document.getElementById('countdown').textContent = formatCountdown();
+    
+
+        // ===== FIREBASE INTEGRATION =====
+        let currentGatheringId = null;
+        let unsubscribe = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Get gathering ID from URL
+            const params = new URLSearchParams(window.location.search);
+            currentGatheringId = params.get('g');
+
+            if (currentGatheringId && gatherFirebase.isFirebaseConfigured()) {
+                // Real gathering - fetch and display
+                await loadGathering(currentGatheringId);
+                
+                // Hide demo buttons when showing real data
+                const stateToggle = document.querySelector('.state-toggle');
+                if (stateToggle) {
+                    stateToggle.style.display = 'none';
+                }
+            } else {
+                // Demo mode - show toggle buttons
+                const stateToggle = document.querySelector('.state-toggle');
+                if (stateToggle) {
+                    stateToggle.style.display = 'flex';
+                }
+            }
+        });
+
+        async function loadGathering(gatheringId) {
+            try {
+                const gathering = await gatherFirebase.getGathering(gatheringId);
+                
+                if (!gathering) {
+                    console.error('Gathering not found');
+                    return;
+                }
+
+                // Update page with real gathering data
+                updateDashboardWithGathering(gathering);
+
+                // Set up real-time listener for updates
+                unsubscribe = gatherFirebase.onGatheringUpdate(gatheringId, (updatedData) => {
+                    updateDashboardWithGathering(updatedData);
+                });
+            } catch (error) {
+                console.error('Error loading gathering:', error);
+            }
+        }
+
+        function updateDashboardWithGathering(gathering) {
+            const now = Date.now();
+            const pollOpen = now < gathering.pollDeadline;
+
+            // Determine which state to show
+            const openState = document.getElementById('state-open');
+            const closedState = document.getElementById('state-closed');
+            
+            if (pollOpen && openState) {
+                openState.classList.remove('hidden');
+                if (closedState) closedState.classList.add('hidden');
+                updateOpenState(gathering);
+            } else if (!pollOpen && closedState) {
+                closedState.classList.remove('hidden');
+                if (openState) openState.classList.add('hidden');
+                updateClosedState(gathering);
+            }
+        }
+
+        function updateOpenState(gathering) {
+            // Update summary card
+            const summaryTitle = document.querySelector('.summary-title');
+            if (summaryTitle) summaryTitle.textContent = gathering.activity;
+
+            const modeBadge = document.querySelector('.mode-badge');
+            if (modeBadge) modeBadge.textContent = capitalizeMode(gathering.mode);
+
+            const detailRows = document.querySelectorAll('.detail-row');
+            if (detailRows.length >= 3) {
+                detailRows[0].querySelector('span:last-child').textContent = gathering.activity;
+                detailRows[1].querySelector('span:last-child').textContent = gathering.location;
+                detailRows[2].querySelector('span:last-child').textContent = gathering.hostName;
+            }
+
+            // Update countdown
+            const countdownTime = document.getElementById('countdown');
+            if (countdownTime) {
+                const timeLeft = gathering.pollDeadline - Date.now();
+                countdownTime.textContent = formatTimeRemaining(timeLeft);
+            }
+
+            // Update time options with vote counts
+            const timeOptionsContainer = document.querySelector('.results-section');
+            if (timeOptionsContainer && gathering.timeOptions) {
+                const existingOptions = timeOptionsContainer.querySelectorAll('.time-option');
+                existingOptions.forEach(option => option.remove());
+
+                gathering.timeOptions.forEach((option, index) => {
+                    let voteCount = 0;
+                    let voters = [];
+                    
+                    if (gathering.votes) {
+                        Object.values(gathering.votes).forEach(vote => {
+                            if (vote.selectedTimes && vote.selectedTimes.includes(index)) {
+                                voteCount++;
+                                voters.push(vote.name);
+                            }
+                        });
+                    }
+
+                    const label = new Date(option.date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        weekday: 'short'
+                    }) + ' at ' + option.time;
+
+                    const div = document.createElement('div');
+                    div.className = 'time-option';
+                    
+                    // Find the leading option
+                    let maxVotes = 0;
+                    if (gathering.votes) {
+                        gathering.timeOptions.forEach((_, i) => {
+                            let count = 0;
+                            Object.values(gathering.votes).forEach(vote => {
+                                if (vote.selectedTimes && vote.selectedTimes.includes(i)) {
+                                    count++;
+                                }
+                            });
+                            maxVotes = Math.max(maxVotes, count);
+                        });
+                    }
+                    
+                    if (voteCount === maxVotes && voteCount > 0) {
+                        div.classList.add('winner');
+                    }
+
+                    div.innerHTML = `
+                        <div class="time-header">
+                            <span class="time-display">${label}</span>
+                            <div style="display: flex; gap: 8px;">
+                                ${voteCount === maxVotes && voteCount > 0 ? '<span class="winner-badge">✓ Leading</span>' : ''}
+                                <span class="vote-count">${voteCount}</span>
+                            </div>
+                        </div>
+                        ${voters.length > 0 ? `<div class="voter-names">${voters.map(v => `<span class="voter-name">${v}</span>`).join('')}</div>` : ''}
+                    `;
+                    
+                    timeOptionsContainer.appendChild(div);
+                });
+
+                // Update response count
+                const totalVotes = gathering.votes ? Object.keys(gathering.votes).length : 0;
+                const responseCount = document.querySelector('.response-count');
+                if (responseCount) {
+                    responseCount.textContent = `${totalVotes} of ${gathering.invitedCount || totalVotes + 2} people have voted`;
+                }
+            }
+
+            // Update invite re-share section
+            const inviteText = document.querySelector('.invite-text');
+            if (inviteText) {
+                inviteText.innerHTML = `Let's make something together! I'm hosting a gathering to try out something new: ${gathering.activity}.
+
+When: You tell me! Voting closes ${new Date(gathering.pollDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}.
+
+Where: ${gathering.location}
+
+Why: ${capitalizeMode(gathering.mode)} mode — check the app to see why I picked this.
+
+Vote for your best time here: <a href="vote.html?g=${currentGatheringId}" class="invite-link">${window.location.origin}/vote.html?g=${currentGatheringId}</a>`;
+            }
+        }
+
+        function updateClosedState(gathering) {
+            // Find the winning time
+            let winningIndex = -1;
+            let maxVotes = 0;
+            
+            if (gathering.votes && gathering.timeOptions) {
+                gathering.timeOptions.forEach((_, index) => {
+                    let voteCount = 0;
+                    Object.values(gathering.votes).forEach(vote => {
+                        if (vote.selectedTimes && vote.selectedTimes.includes(index)) {
+                            voteCount++;
+                        }
+                    });
+                    if (voteCount > maxVotes) {
+                        maxVotes = voteCount;
+                        winningIndex = index;
+                    }
+                });
+            }
+
+            // Update winning time card
+            if (winningIndex >= 0 && gathering.timeOptions[winningIndex]) {
+                const winningOption = gathering.timeOptions[winningIndex];
+                const label = new Date(winningOption.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    weekday: 'short'
+                }) + ' at ' + winningOption.time;
+
+                const winningDate = document.querySelector('.winning-date');
+                const winningDetails = document.querySelector('.winning-details');
+                
+                if (winningDate) winningDate.textContent = label;
+                if (winningDetails) winningDetails.textContent = `${gathering.activity} at ${gathering.location}`;
+            }
+
+            // Update confirmations section
+            updateConfirmationsDisplay(gathering);
+
+            // Update message card
+            if (winningIndex >= 0 && gathering.timeOptions[winningIndex]) {
+                const winningOption = gathering.timeOptions[winningIndex];
+                const label = new Date(winningOption.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    weekday: 'short'
+                }) + ' at ' + winningOption.time;
+
+                // Get confirmed attendees
+                let confirmedNames = [];
+                if (gathering.confirmations) {
+                    Object.values(gathering.confirmations).forEach(conf => {
+                        if (conf.status === 'confirmed') {
+                            confirmedNames.push(conf.name);
+                        }
+                    });
+                }
+
+                const messageBox = document.querySelector('.message-box');
+                if (messageBox) {
+                    messageBox.textContent = `It's happening! 🎉
+
+${gathering.activity} at ${gathering.location}
+${label}
+
+Coming: ${confirmedNames.length > 0 ? confirmedNames.join(', ') : 'awaiting confirmations'}
+
+For those who couldn't make it — we'll miss you. Want to make sure you're at the next one? Host it! It takes two minutes: ${window.location.origin}/host.html
+
+See you there ✨`;
+                }
+            }
+
+            // Update invite re-share section for closed state
+            const inviteTextClosed = document.querySelector('.invite-section .invite-text');
+            if (inviteTextClosed) {
+                inviteTextClosed.innerHTML = `Let's make something together! I'm hosting a gathering to try out something new: ${gathering.activity}.
+
+Where: ${gathering.location}
+
+Vote for your best time here: <a href="vote.html?g=${currentGatheringId}" class="invite-link">${window.location.origin}/vote.html?g=${currentGatheringId}</a>`;
+            }
+        }
+
+        function updateConfirmationsDisplay(gathering) {
+            const confirmedList = document.querySelector('.confirmation-group:nth-child(1) .names-list');
+            const pendingList = document.querySelector('.confirmation-group:nth-child(2) .names-list');
+            const unavailableList = document.querySelector('.confirmation-group:nth-child(3) .names-list');
+
+            // Get all voters
+            const allVoters = {};
+            if (gathering.votes) {
+                Object.values(gathering.votes).forEach(vote => {
+                    allVoters[vote.name] = 'pending';
+                });
+            }
+
+            // Update with confirmations
+            if (gathering.confirmations) {
+                Object.values(gathering.confirmations).forEach(conf => {
+                    allVoters[conf.name] = conf.status;
+                });
+            }
+
+            // Clear lists
+            if (confirmedList) confirmedList.innerHTML = '';
+            if (pendingList) pendingList.innerHTML = '';
+            if (unavailableList) unavailableList.innerHTML = '';
+
+            // Populate lists
+            Object.entries(allVoters).forEach(([name, status]) => {
+                const tag = document.createElement('span');
+                tag.className = `person-tag ${status}`;
+                
+                let icon = '⏳';
+                if (status === 'confirmed') {
+                    icon = '✓';
+                    tag.className = 'person-tag confirmed';
+                } else if (status === 'cant_make_it') {
+                    icon = '💙';
+                    tag.className = 'person-tag unavailable';
+                } else if (status === 'next_time') {
+                    icon = '💚';
+                    tag.className = 'person-tag nexttime';
+                }
+
+                tag.innerHTML = `<span class="status-icon">${icon}</span><span>${name}</span>`;
+
+                if (status === 'confirmed' && confirmedList) {
+                    confirmedList.appendChild(tag);
+                } else if (status === 'pending' && pendingList) {
+                    pendingList.appendChild(tag);
+                } else if ((status === 'cant_make_it' || status === 'next_time') && unavailableList) {
+                    unavailableList.appendChild(tag);
+                }
+            });
+
+            // Update summary
+            const confirmedCount = Object.values(allVoters).filter(s => s === 'confirmed').length;
+            const totalCount = Object.keys(allVoters).length;
+            
+            const summary = document.querySelector('.confirmation-summary');
+            if (summary) {
+                summary.innerHTML = `<strong>${confirmedCount} of ${totalCount} confirmed.</strong> <span class="affirmation">${confirmedCount >= 2 ? "That's a gathering. You're good to go." : "Keep nudging!"}</span>`;
+            }
+        }
+
+        function capitalizeMode(mode) {
+            const modes = {
+                'village': 'Village Mode',
+                'discovery': 'Discovery Mode',
+                'kindred': 'Kindred Mode',
+                'perennial': 'Perennial Mode'
+            };
+            return modes[mode] || mode;
+        }
+
+        function formatTimeRemaining(ms) {
+            if (ms <= 0) return 'Poll closed';
+            
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours > 0) {
+                return `${hours} hour${hours > 1 ? 's' : ''}, ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+            }
+            return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+        }
+
+        // Update countdown timer every minute
+        setInterval(() => {
+            if (currentGatheringId) {
+                const countdownTime = document.getElementById('countdown');
+                if (countdownTime) {
+                    // Re-fetch to get fresh data
+                    gatherFirebase.getGathering(currentGatheringId).then(gathering => {
+                        if (gathering) {
+                            const timeLeft = gathering.pollDeadline - Date.now();
+                            countdownTime.textContent = formatTimeRemaining(timeLeft);
+                        }
+                    });
+                }
+            }
+        }, 60000);
+    </script>
+</body>
+</html>

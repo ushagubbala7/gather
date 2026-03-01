@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gather More — Vote on Time</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #FAFBFC;
+            color: #1B2A3D;
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse 600px 400px at 10% 20%, rgba(26, 107, 122, 0.04) 0%, transparent 70%),
+                radial-gradient(ellipse 500px 350px at 90% 80%, rgba(255, 179, 71, 0.05) 0%, transparent 70%),
+                radial-gradient(ellipse 400px 300px at 50% 50%, rgba(255, 107, 107, 0.02) 0%, transparent 70%);
+        }
+
+        /* Grain texture */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* Header Navigation */
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 12px;
+        }
+
+        .back-link {
+            color: #1A6B7A;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #FF6B6B;
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: rgba(26, 107, 122, 0.08);
+            border: 1px solid rgba(26, 107, 122, 0.15);
+            border-radius: 4px;
+            cursor: pointer;
+            color: #1B2A3D;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .demo-btn:hover {
+            background: rgba(26, 107, 122, 0.12);
+        }
+
+        .demo-btn.active {
+            background: #1A6B7A;
+            color: white;
+            border-color: #1A6B7A;
+        }
+
+        /* Main Content */
+        .page-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* STATE 1: VOTING */
+        .page-state.voting {
+            display: block;
+        }
+
+        .page-state {
+            display: none;
+        }
+
+        /* Header Section */
+        .header-section {
+            margin-bottom: 40px;
+        }
+
+        .header-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #1B2A3D;
+            letter-spacing: -0.01em;
+        }
+
+        .gathering-details {
+            background: white;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+            border-left: 4px solid #1A6B7A;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(26, 107, 122, 0.06);
+        }
+
+        .gathering-details p {
+            margin-bottom: 8px;
+            color: #1B2A3D;
+        }
+
+        .gathering-details p:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #1A6B7A;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #1B2A3D;
+        }
+
+        .poll-deadline {
+            font-size: 13px;
+            color: #3CB371;
+            font-weight: 500;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-label {
+            font-family: 'Nunito', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1B2A3D;
+            display: block;
+        }
+
+        /* Guest Name Input */
+        .name-input-container {
+            margin-bottom: 32px;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 16px 18px;
+            font-size: 16px;
+            border: 2px solid rgba(26, 107, 122, 0.12);
+            border-radius: 12px;
+            background: white;
+            color: #1B2A3D;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(26, 107, 122, 0.04);
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #1A6B7A;
+            box-shadow: 0 0 0 3px rgba(26, 107, 122, 0.1), 0 2px 8px rgba(26, 107, 122, 0.06);
+        }
+
+        .name-input::placeholder {
+            color: rgba(26, 107, 122, 0.4);
+        }
+
+        /* Time Options */
+        .time-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .time-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 20px;
+            background: white;
+            border: 2px solid rgba(26, 107, 122, 0.1);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(26, 107, 122, 0.04);
+        }
+
+        .time-card:hover {
+            border-color: #FF6B6B;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .time-card.selected {
+            border-color: #FF6B6B;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.03), rgba(255, 179, 71, 0.03));
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.12);
+        }
+
+        .time-card input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #1A6B7A;
+        }
+
+        .time-card-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .time-card-time {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1B2A3D;
+            margin-bottom: 4px;
+        }
+
+        .time-card-votes {
+            font-size: 13px;
+            color: #3CB371;
+            font-weight: 500;
+        }
+
+        /* Alternative Option */
+        .alternative-section {
+            margin-top: 32px;
+            padding: 24px 28px;
+            background: linear-gradient(135deg, rgba(26, 107, 122, 0.04), rgba(60, 179, 113, 0.06));
+            border-radius: 14px;
+            border: 1px solid rgba(60, 179, 113, 0.12);
+        }
+
+        .alternative-heading {
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A6B7A;
+            margin-bottom: 12px;
+        }
+
+        .alternative-philosophy {
+            font-size: 14px;
+            line-height: 1.75;
+            color: #4A5B6E;
+            margin-bottom: 16px;
+        }
+
+        .alternative-philosophy strong {
+            color: #1B2A3D;
+            font-weight: 600;
+        }
+
+        .alternative-toggle {
+            background: none;
+            border: none;
+            color: #1A6B7A;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+
+        .alternative-toggle:hover {
+            color: #FF6B6B;
+        }
+
+        .toggle-icon {
+            display: inline-block;
+            transition: transform 0.2s;
+            font-size: 12px;
+        }
+
+        .alternative-toggle.open .toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        .alternative-content {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .alternative-content.open {
+            display: block;
+        }
+
+        .alternative-message {
+            font-size: 14px;
+            color: #1B2A3D;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 14px;
+            border: 2px solid #3CB371;
+            border-radius: 6px;
+            background: white;
+            color: #1B2A3D;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: #1A6B7A;
+            box-shadow: 0 0 0 3px rgba(26, 107, 122, 0.1);
+        }
+
+        /* Buttons */
+        .button {
+            padding: 14px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #FF6B6B 0%, #e85d5d 50%, #FF6B6B 100%);
+            background-size: 200% 100%;
+            animation: btnShimmer 3s ease-in-out infinite;
+            color: white;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+            letter-spacing: 0.01em;
+        }
+
+        .button-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(255, 107, 107, 0.35);
+        }
+
+        @keyframes btnShimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .button-primary:disabled {
+            background: rgba(26, 107, 122, 0.3);
+            cursor: not-allowed;
+        }
+
+        .button-secondary {
+            background: linear-gradient(135deg, #3CB371, #35a367);
+            color: white;
+            width: 100%;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(60, 179, 113, 0.2);
+        }
+
+        .button-secondary:hover {
+            background: linear-gradient(135deg, #35a367, #2e9e5e);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(60, 179, 113, 0.3);
+        }
+
+        .button-muted {
+            background: rgba(26, 107, 122, 0.08);
+            color: #1B2A3D;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .button-muted:hover {
+            background: rgba(26, 107, 122, 0.12);
+        }
+
+        .button-link {
+            background: none;
+            color: #1A6B7A;
+            padding: 0;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            width: auto;
+            display: inline;
+        }
+
+        .button-link:hover {
+            color: #FF6B6B;
+        }
+
+        /* Confirmation State */
+        .confirmation-box {
+            background: linear-gradient(135deg, rgba(26, 107, 122, 0.06), rgba(60, 179, 113, 0.04));
+            border: 2px solid rgba(26, 107, 122, 0.15);
+            border-radius: 20px;
+            padding: 32px 28px;
+            text-align: center;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 20px rgba(26, 107, 122, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confirmation-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1A6B7A, #3CB371, #FFB347);
+        }
+
+        .confirmation-emoji {
+            font-size: 52px;
+            margin-bottom: 16px;
+        }
+
+        .confirmation-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: #1B2A3D;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .confirmation-text {
+            font-size: 15px;
+            color: #4A5B6E;
+            margin-bottom: 12px;
+            line-height: 1.7;
+        }
+
+        .confirmation-text:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Vote Tally */
+        .vote-tally {
+            background: white;
+            border: 1px solid rgba(26, 107, 122, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(26, 107, 122, 0.04);
+        }
+
+        .tally-title {
+            font-weight: 600;
+            color: #3CB371;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .tally-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(26, 107, 122, 0.1);
+        }
+
+        .tally-item:last-child {
+            border-bottom: none;
+        }
+
+        .tally-time {
+            font-weight: 500;
+            color: #1B2A3D;
+        }
+
+        .tally-count {
+            color: #1A6B7A;
+            font-weight: 600;
+        }
+
+        /* STATE 2: CLOSED */
+        .header-title.closed {
+            font-size: 32px;
+        }
+
+        .winning-time {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.04), rgba(255, 179, 71, 0.04));
+            border: 2px solid #FF6B6B;
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .winning-time::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B6B, #FFB347);
+        }
+
+        .winning-time-label {
+            font-size: 12px;
+            color: #FF6B6B;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .winning-time-display {
+            font-family: 'Nunito', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1B2A3D;
+            margin-bottom: 16px;
+        }
+
+        .attendees-list {
+            font-size: 14px;
+            color: #1B2A3D;
+        }
+
+        .attendees-list strong {
+            color: #3CB371;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* STATE 3: AFTER GATHERING */
+        .feedback-section {
+            text-align: center;
+        }
+
+        .feedback-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #1B2A3D;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .feedback-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid rgba(26, 107, 122, 0.12);
+            background: white;
+            color: #1B2A3D;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(26, 107, 122, 0.04);
+        }
+
+        .feedback-btn:hover {
+            border-color: #1A6B7A;
+            background: rgba(26, 107, 122, 0.04);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 107, 122, 0.08);
+        }
+
+        .feedback-btn.selected {
+            background: linear-gradient(135deg, #1A6B7A, #155a67);
+            color: white;
+            border-color: #1A6B7A;
+            box-shadow: 0 4px 12px rgba(26, 107, 122, 0.2);
+        }
+
+        .feedback-message {
+            font-size: 14px;
+            color: #1B2A3D;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            min-height: 60px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+
+            .form-label {
+                font-size: 18px;
+            }
+
+            .time-card {
+                padding: 16px;
+                min-height: 56px;
+            }
+
+            .time-card input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+            }
+
+            .button {
+                font-size: 15px;
+                padding: 12px 20px;
+            }
+
+            .demo-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .demo-btn {
+                flex: 1;
+            }
+        }
+    </style>
+    <!-- Firebase SDK (Compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    </head>
+<body>
+    <div class="container">
+        <!-- Header Navigation -->
+        <div class="header-nav">
+            <a href="index.html" class="back-link">← Back</a>
+            <div class="demo-buttons">
+                <button class="demo-btn active" onclick="setPageState('voting')">Voting</button>
+                <button class="demo-btn" onclick="setPageState('closed')">Poll Closed</button>
+                <button class="demo-btn" onclick="setPageState('afterGathering')">After</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="page-content">
+            <!-- STATE 1: VOTING -->
+            <div class="page-state voting" id="votingState">
+                <div class="header-section">
+                    <h1 class="header-title">Usha is inviting you to gather</h1>
+                    <div class="gathering-details">
+                        <p><span class="detail-label">Activity</span><span class="detail-value">Pottery class</span></p>
+                        <p><span class="detail-label">Location</span><span class="detail-value">Color Me Mine, Silver Lake</span></p>
+                        <p class="poll-deadline">Poll closes Saturday, March 7 at 11:59 PM</p>
+                    </div>
+                </div>
+
+                <!-- Philosophy nudge -->
+                <div style="background: linear-gradient(135deg, rgba(26, 107, 122, 0.04), rgba(60, 179, 113, 0.04)); border-radius: 16px; padding: 1.4rem 1.6rem; margin-bottom: 32px; border: 1px solid rgba(26, 107, 122, 0.06);">
+                    <p style="font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 600; color: #1B2A3D; margin-bottom: 1rem; line-height: 1.4;">You want to spend more time with your people. We're trying to make that easy.</p>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <p style="font-size: 0.85rem; color: #4A5B6E; line-height: 1.65; margin: 0;"><strong style="color: #1A6B7A;">Hosting should be this easy</strong> — Someone picked an activity, suggested a few times, and sent you this link. That's it. No group chat back-and-forth, no spreadsheets, no guilt. Just a button and a question: when works for you?</p>
+                        <p style="font-size: 0.85rem; color: #4A5B6E; line-height: 1.65; margin: 0;"><strong style="color: #1A6B7A;">Go with most, not all</strong> — We're not looking for the date everyone can make. We pick the time that works for most people and go. If you can't make this one, no stress — the next one's coming.</p>
+                        <p style="font-size: 0.85rem; color: #4A5B6E; line-height: 1.65; margin: 0;"><strong style="color: #1A6B7A;">Keep showing up</strong> — The goal isn't one perfect gathering. It's making this a habit. A casual walk every couple of weeks does more for your friendships than one ambitious plan every few months.</p>
+                    </div>
+                </div>
+
+                <!-- Guest Name -->
+                <div class="name-input-container">
+                    <label for="guestName" class="form-label">What's your name?</label>
+                    <input
+                        type="text"
+                        id="guestName"
+                        class="name-input"
+                        placeholder="Your name"
+                        autocomplete="name"
+                    >
+                </div>
+
+                <!-- Time Voting -->
+                <div class="form-section">
+                    <label class="form-label">Which times work for you? <span style="font-family: 'DM Sans', sans-serif; font-size: 0.8em; font-weight: 400; color: #4A5B6E;">Choose all that apply.</span></label>
+                    <div class="time-options" id="timeOptions"></div>
+                </div>
+
+                <!-- Alternative Option -->
+                <div class="alternative-section">
+                    <div class="alternative-heading">Can't make any of these times?</div>
+                    <p class="alternative-philosophy">That's completely okay. <strong>We're optimizing for continuity and frequency, not perfection.</strong> The whole idea is to get the ball rolling — pick a time that works for most people, gather, and do it again soon. If this one doesn't work for you, there will be more. The best groups aren't the ones where everyone makes every hangout — they're the ones that keep happening.</p>
+                    <button class="alternative-toggle" onclick="toggleAlternative()">
+                        <span class="toggle-icon">›</span>
+                        Want to stay in the loop?
+                    </button>
+                    <div class="alternative-content" id="alternativeContent">
+                        <input
+                            type="email"
+                            class="email-input"
+                            placeholder="your@email.com (optional)"
+                            id="emailInput"
+                        >
+                        <p class="alternative-message">Or just keep an eye on your group chat — they'll gather again.</p>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="button button-primary" onclick="submitVote()" id="submitBtn">
+                    Submit Vote
+                </button>
+            </div>
+
+            <!-- STATE 2: POLL CLOSED -->
+            <div class="page-state closed" id="closedState">
+                <div class="header-section">
+                    <h1 class="header-title closed">The votes are in!</h1>
+                </div>
+
+                <div class="winning-time">
+                    <div class="winning-time-label">You're gathering on</div>
+                    <div class="winning-time-display" id="winningTimeDisplay">Saturday, March 7 at 2:00 PM</div>
+                    <div class="attendees-list">
+                        <strong id="attendeesLabel">4 people</strong> are coming
+                    </div>
+                </div>
+
+                <div class="gathering-details">
+                    <p><span class="detail-label">Activity</span><span class="detail-value">Pottery class</span></p>
+                    <p><span class="detail-label">Location</span><span class="detail-value">Color Me Mine, Silver Lake</span></p>
+                </div>
+
+                <div class="button-group" style="margin-top: 32px;">
+                    <button class="button button-secondary" onclick="confirmAttendance()">
+                        I'll be there ✓
+                    </button>
+                    <button class="button button-muted" onclick="declineAttendance()">
+                        Something came up
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATE 2B: CONFIRMED ATTENDANCE -->
+            <div class="page-state closed" id="confirmedState" style="display: none;">
+                <div class="confirmation-box">
+                    <div class="confirmation-emoji">🎉</div>
+                    <div class="confirmation-title">See you there</div>
+                    <p class="confirmation-text">This is going to be good.</p>
+                </div>
+
+                <div class="gathering-details">
+                    <p><span class="detail-label">Activity</span><span class="detail-value">Pottery class</span></p>
+                    <p><span class="detail-label">Location</span><span class="detail-value">Color Me Mine, Silver Lake</span></p>
+                    <p><span class="detail-label">When</span><span class="detail-value" id="finalTimeDisplay">Saturday, March 7 at 2:00 PM</span></p>
+                </div>
+
+                <button class="button button-primary" onclick="setPageState('voting')" style="margin-top: 32px;">
+                    Back to Poll
+                </button>
+            </div>
+
+            <!-- STATE 2C: DECLINED ATTENDANCE -->
+            <div class="page-state closed" id="declinedState" style="display: none;">
+                <div class="confirmation-box">
+                    <div class="confirmation-title">No worries</div>
+                    <p class="confirmation-text">We'll miss you. This crew will gather again.</p>
+                    <p class="confirmation-text" style="margin-top: 16px;">Want to be the one to host next time?</p>
+                </div>
+
+                <a href="host.html" class="button button-secondary" style="display: block; text-decoration: none; text-align: center;">
+                    Host the next gathering →
+                </a>
+
+                <p class="confirmation-text" style="margin-top: 20px; text-align: center;">Or just keep an eye on your group chat.</p>
+
+                <button class="button button-muted" onclick="setPageState('voting')" style="margin-top: 20px;">
+                    Back to Poll
+                </button>
+            </div>
+
+            <!-- STATE 3: AFTER GATHERING -->
+            <div class="page-state afterGathering" id="afterGatheringState">
+                <div class="feedback-section">
+                    <h1 class="feedback-title">Would you like to be part of more gatherings like this?</h1>
+
+                    <div class="feedback-buttons">
+                        <button class="feedback-btn" onclick="selectFeedback('yes')">Definitely, sign me up</button>
+                        <button class="feedback-btn" onclick="selectFeedback('not-now')">Not right now</button>
+                    </div>
+
+                    <div class="feedback-message" id="feedbackMessage"></div>
+
+                    <div id="hostButton" style="display: none;">
+                        <a href="host.html" class="button button-secondary" style="display: block; text-decoration: none; text-align: center;">
+                            I'll host the next one →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demo
+        const gatheringData = {
+            hostName: 'Usha',
+            activity: 'Pottery class',
+            location: 'Color Me Mine, Silver Lake',
+            mode: 'discovery',
+            times: [
+                { id: 1, display: 'Saturday, March 7 at 2:00 PM', votes: 3 },
+                { id: 2, display: 'Sunday, March 8 at 11:00 AM', votes: 2 },
+                { id: 3, display: 'Tuesday, March 10 at 6:30 PM', votes: 2 }
+            ],
+            pollClosesAt: 'Saturday, March 7 at 11:59 PM',
+            winningTimeId: 1
+        };
+
+        // State management
+        let state = {
+            guestName: '',
+            selectedTimes: [],
+            email: '',
+            currentPageState: 'voting',
+            feedback: null,
+            hasVoted: false
+        };
+
+        // Initialize
+        function init() {
+            loadFromLocalStorage();
+            renderTimeOptions();
+            setPageState('voting');
+        }
+
+        // Time options rendering
+        function renderTimeOptions() {
+            const container = document.getElementById('timeOptions');
+            container.innerHTML = '';
+
+            gatheringData.times.forEach(time => {
+                const div = document.createElement('div');
+                div.className = `time-card ${state.selectedTimes.includes(time.id) ? 'selected' : ''}`;
+                div.onclick = () => toggleTimeSelection(time.id);
+
+                const peopleWord = time.votes === 1 ? 'person' : 'people';
+                div.innerHTML = `
+                    <input type="checkbox" ${state.selectedTimes.includes(time.id) ? 'checked' : ''}>
+                    <div class="time-card-content">
+                        <div class="time-card-time">${time.display}</div>
+                        <div class="time-card-votes">${time.votes} ${peopleWord} can make this time</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Toggle time selection
+        function toggleTimeSelection(timeId) {
+            const index = state.selectedTimes.indexOf(timeId);
+            if (index > -1) {
+                state.selectedTimes.splice(index, 1);
+            } else {
+                state.selectedTimes.push(timeId);
+            }
+            renderTimeOptions();
+            saveToLocalStorage();
+        }
+
+        // Alternative section toggle
+        function toggleAlternative() {
+            const content = document.getElementById('alternativeContent');
+            const button = event.target.closest('.alternative-toggle');
+            button.classList.toggle('open');
+            content.classList.toggle('open');
+        }
+
+        // Submit vote
+        function submitVote() {
+            const name = document.getElementById('guestName').value.trim();
+
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+
+            if (state.selectedTimes.length === 0) {
+                alert('Please select at least one time');
+                return;
+            }
+
+            // Update vote counts
+            state.selectedTimes.forEach(timeId => {
+                const time = gatheringData.times.find(t => t.id === timeId);
+                if (time) time.votes++;
+            });
+
+            state.guestName = name;
+            state.email = document.getElementById('emailInput').value;
+            state.hasVoted = true;
+            state.currentPageState = 'voting-confirmed';
+
+            saveToLocalStorage();
+            renderTimeOptions();
+
+            // Show confirmation
+            showConfirmation();
+        }
+
+        // Show confirmation after voting
+        function showConfirmation() {
+            const votingState = document.getElementById('votingState');
+            const newContent = document.createElement('div');
+            newContent.className = 'page-content';
+            newContent.id = 'votingConfirmation';
+
+            // Calculate poll close info
+            const pollCloseDate = new Date();
+            pollCloseDate.setHours(pollCloseDate.getHours() + 48);
+            const closeStr = pollCloseDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+            // Find the leading time
+            const sortedTimes = [...gatheringData.times].sort((a, b) => b.votes - a.votes);
+            const leadingTime = sortedTimes[0];
+            const totalVotes = gatheringData.times.reduce((sum, t) => sum + t.votes, 0);
+
+            newContent.innerHTML = `
+                <div class="confirmation-box" style="margin-bottom: 24px;">
+                    <div class="confirmation-emoji">🎉</div>
+                    <div class="confirmation-title">You're in!</div>
+                    <p class="confirmation-text">Your vote has been counted. The poll closes ${closeStr} — watch your group chat for the final time.</p>
+                </div>
+
+                <div class="vote-tally">
+                    <div class="tally-title">Current standings</div>
+                    ${sortedTimes.map((time, i) => `
+                        <div class="tally-item">
+                            <div style="flex: 1; min-width: 0;">
+                                <span class="tally-time">${time.display}</span>
+                                <div style="margin-top: 6px; height: 4px; border-radius: 2px; background: rgba(26, 107, 122, 0.08); overflow: hidden;">
+                                    <div style="height: 100%; width: ${totalVotes > 0 ? (time.votes / totalVotes * 100) : 0}%; background: ${i === 0 ? 'linear-gradient(90deg, #FF6B6B, #FFB347)' : 'rgba(26, 107, 122, 0.2)'}; border-radius: 2px; transition: width 0.6s ease;"></div>
+                                </div>
+                            </div>
+                            <span class="tally-count" style="${i === 0 ? 'color: #FF6B6B; font-size: 16px;' : ''}">${time.votes} ${time.votes === 1 ? 'vote' : 'votes'}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(60, 179, 113, 0.06), rgba(26, 107, 122, 0.04)); border-radius: 14px; padding: 20px; margin-bottom: 24px; text-align: center;">
+                    <p style="font-size: 14px; color: #4A5B6E; line-height: 1.7; margin: 0;">Want to make sure this actually happens? <strong style="color: #1B2A3D;">Be the person who follows up.</strong> A quick nudge in the group chat goes a long way.</p>
+                </div>
+
+                <button class="button button-muted" onclick="resetVote()" style="margin-bottom: 0;">
+                    Change My Vote
+                </button>
+            `;
+            votingState.replaceWith(newContent);
+        }
+
+        // Reset vote
+        function resetVote() {
+            state.hasVoted = false;
+            state.selectedTimes = [];
+            state.guestName = '';
+            state.currentPageState = 'voting';
+            saveToLocalStorage();
+            location.reload();
+        }
+
+        // Confirm attendance (from closed state)
+        function confirmAttendance() {
+            document.getElementById('closedState').style.display = 'none';
+            document.getElementById('confirmedState').style.display = 'block';
+        }
+
+        // Decline attendance
+        function declineAttendance() {
+            document.getElementById('closedState').style.display = 'none';
+            document.getElementById('declinedState').style.display = 'block';
+        }
+
+        // Feedback selection
+        function selectFeedback(choice) {
+            state.feedback = choice;
+            document.querySelectorAll('.feedback-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+
+            const msgEl = document.getElementById('feedbackMessage');
+            const hostBtn = document.getElementById('hostButton');
+
+            if (choice === 'yes') {
+                msgEl.innerHTML = `
+                    <strong>Amazing.</strong> The best way to make sure it happens? Host the next one.
+                `;
+                hostBtn.style.display = 'block';
+            } else {
+                msgEl.innerHTML = `
+                    No pressure at all. You can always jump back in when the time is right.
+                `;
+                hostBtn.style.display = 'none';
+            }
+
+            saveToLocalStorage();
+        }
+
+        // Page state management
+        function setPageState(newState) {
+            document.querySelectorAll('.page-state').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.demo-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            if (newState === 'voting') {
+                document.getElementById('votingState').style.display = 'block';
+                document.querySelector('[onclick="setPageState(\'voting\')"]').classList.add('active');
+            } else if (newState === 'closed') {
+                document.getElementById('closedState').style.display = 'block';
+                document.getElementById('confirmedState').style.display = 'none';
+                document.getElementById('declinedState').style.display = 'none';
+                document.querySelector('[onclick="setPageState(\'closed\')"]').classList.add('active');
+            } else if (newState === 'afterGathering') {
+                document.getElementById('afterGatheringState').style.display = 'block';
+                document.querySelector('[onclick="setPageState(\'afterGathering\')"]').classList.add('active');
+            }
+
+            state.currentPageState = newState;
+            saveToLocalStorage();
+        }
+
+        // LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('gatherVoteState', JSON.stringify(state));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('gatherVoteState');
+            if (saved) {
+                state = { ...state, ...JSON.parse(saved) };
+            }
+        }
+
+        // Start app
+        init();
+    
+
+        // ===== FIREBASE INTEGRATION =====
+        let currentGatheringId = null;
+        let currentVoterName = null;
+        let unsubscribe = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Get gathering ID from URL
+            const params = new URLSearchParams(window.location.search);
+            currentGatheringId = params.get('g');
+
+            if (currentGatheringId && gatherFirebase.isFirebaseConfigured()) {
+                // Real gathering - fetch and display
+                await loadGathering(currentGatheringId);
+                
+                // Hide demo buttons when showing real data
+                const demoButtons = document.querySelector('.demo-buttons');
+                if (demoButtons) {
+                    demoButtons.style.display = 'none';
+                }
+            } else {
+                // Demo mode - show demo buttons
+                const demoButtons = document.querySelector('.demo-buttons');
+                if (demoButtons) {
+                    demoButtons.style.display = 'flex';
+                }
+            }
+        });
+
+        async function loadGathering(gatheringId) {
+            try {
+                const gathering = await gatherFirebase.getGathering(gatheringId);
+                
+                if (!gathering) {
+                    console.error('Gathering not found');
+                    showDemoMode();
+                    return;
+                }
+
+                // Update page with real gathering data
+                updatePageWithGathering(gathering);
+
+                // Set up real-time listener for vote updates
+                unsubscribe = gatherFirebase.onGatheringUpdate(gatheringId, (updatedData) => {
+                    updateVoteCounts(updatedData);
+                });
+
+                // Check if user already voted
+                const savedVotes = JSON.parse(localStorage.getItem(`votes_${gatheringId}`) || '{}');
+                if (Object.keys(savedVotes).length > 0) {
+                    currentVoterName = Object.keys(savedVotes)[0];
+                    // Show thank you message
+                    showAlreadyVoted(currentVoterName);
+                }
+            } catch (error) {
+                console.error('Error loading gathering:', error);
+                showDemoMode();
+            }
+        }
+
+        function updatePageWithGathering(gathering) {
+            // Update header
+            document.querySelector('h1').textContent = gathering.activity;
+            
+            // Update gathering info
+            const infoSection = document.querySelector('.gathering-info');
+            if (infoSection) {
+                infoSection.innerHTML = `
+                    <p><strong>Host:</strong> ${gathering.hostName}</p>
+                    <p><strong>Location:</strong> ${gathering.location}</p>
+                    <p><strong>Mode:</strong> ${gathering.mode}</p>
+                `;
+            }
+
+            // Check if poll is still open
+            const now = Date.now();
+            const isPollOpen = now < gathering.pollDeadline;
+
+            // Update time options
+            const timesContainer = document.querySelector('.time-options');
+            if (timesContainer) {
+                timesContainer.innerHTML = '';
+                
+                gathering.timeOptions.forEach((option, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'time-option';
+                    
+                    // Count votes for this time
+                    let voteCount = 0;
+                    let voters = [];
+                    if (gathering.votes) {
+                        Object.values(gathering.votes).forEach(vote => {
+                            if (vote.selectedTimes && vote.selectedTimes.includes(index)) {
+                                voteCount++;
+                                voters.push(vote.name);
+                            }
+                        });
+                    }
+                    
+                    const label = new Date(option.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        weekday: 'short' 
+                    }) + ' at ' + option.time;
+                    
+                    div.innerHTML = `
+                        <label class="time-label">
+                            <input type="checkbox" value="${index}" ${isPollOpen ? '' : 'disabled'}>
+                            <span class="time-text">${label}</span>
+                            ${voteCount > 0 ? `<span class="vote-count">${voteCount}</span>` : ''}
+                        </label>
+                        ${voters.length > 0 ? `<div class="voter-list">${voters.join(', ')}</div>` : ''}
+                    `;
+                    
+                    timesContainer.appendChild(div);
+                });
+            }
+
+            // Show poll status
+            const pollStatus = document.querySelector('.poll-status') || createPollStatus();
+            if (!isPollOpen) {
+                pollStatus.textContent = 'Voting has closed for this gathering.';
+                pollStatus.className = 'poll-status closed';
+            }
+        }
+
+        function createPollStatus() {
+            const div = document.createElement('div');
+            div.className = 'poll-status';
+            const infoSection = document.querySelector('.gathering-info');
+            if (infoSection) {
+                infoSection.appendChild(div);
+            }
+            return div;
+        }
+
+        function updateVoteCounts(gathering) {
+            // Update vote counts and voter names in real-time
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const index = parseInt(checkbox.value);
+                let voteCount = 0;
+                let voters = [];
+                
+                if (gathering.votes) {
+                    Object.values(gathering.votes).forEach(vote => {
+                        if (vote.selectedTimes && vote.selectedTimes.includes(index)) {
+                            voteCount++;
+                            voters.push(vote.name);
+                        }
+                    });
+                }
+                
+                // Update vote count badge
+                const timeOption = checkbox.closest('.time-option');
+                let countBadge = timeOption.querySelector('.vote-count');
+                if (voteCount > 0) {
+                    if (!countBadge) {
+                        countBadge = document.createElement('span');
+                        countBadge.className = 'vote-count';
+                        checkbox.parentElement.appendChild(countBadge);
+                    }
+                    countBadge.textContent = voteCount;
+                } else if (countBadge) {
+                    countBadge.remove();
+                }
+
+                // Update voter list
+                let voterList = timeOption.querySelector('.voter-list');
+                if (voters.length > 0) {
+                    if (!voterList) {
+                        voterList = document.createElement('div');
+                        voterList.className = 'voter-list';
+                        timeOption.appendChild(voterList);
+                    }
+                    voterList.textContent = voters.join(', ');
+                } else if (voterList) {
+                    voterList.remove();
+                }
+            });
+        }
+
+        function showAlreadyVoted(voterName) {
+            const form = document.querySelector('.vote-form');
+            if (form) {
+                form.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <h2>Thanks for voting, ${voterName}!</h2>
+                        <p>Your vote has been recorded. Check back after the poll closes to see the results.</p>
+                        <p style="margin-top: 20px; font-size: 14px; color: #3CB371;">
+                            Votes are live — you can see who else is voting in real time.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function showDemoMode() {
+            // Show demo toggle buttons
+            const demoButtons = document.querySelector('.demo-buttons');
+            if (demoButtons) {
+                demoButtons.style.display = 'flex';
+            }
+        }
+
+        // Handle vote submission
+        const submitBtn = document.querySelector('.vote-submit');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async function() {
+                const nameInput = document.querySelector('input[name="voter_name"]');
+                const emailInput = document.querySelector('input[name="voter_email"]');
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+                
+                if (!nameInput.value.trim()) {
+                    alert('Please enter your name');
+                    return;
+                }
+
+                if (checkboxes.length === 0) {
+                    alert('Please select at least one time');
+                    return;
+                }
+
+                if (currentGatheringId && gatherFirebase.isFirebaseConfigured()) {
+                    // Submit to Firebase
+                    const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                    
+                    try {
+                        await gatherFirebase.submitVote(
+                            currentGatheringId,
+                            nameInput.value.trim(),
+                            selectedIndices,
+                            emailInput.value.trim() || null
+                        );
+
+                        // Save to localStorage
+                        const votes = {};
+                        votes[nameInput.value.trim()] = selectedIndices;
+                        localStorage.setItem(`votes_${currentGatheringId}`, JSON.stringify(votes));
+
+                        currentVoterName = nameInput.value.trim();
+                        showAlreadyVoted(currentVoterName);
+                    } catch (error) {
+                        console.error('Error submitting vote:', error);
+                        alert('Error submitting vote. Please try again.');
+                    }
+                } else {
+                    // Demo mode - just show thank you
+                    localStorage.setItem(`votes_demo`, JSON.stringify({
+                        name: nameInput.value.trim(),
+                        time: new Date().toISOString()
+                    }));
+                    
+                    currentVoterName = nameInput.value.trim();
+                    showAlreadyVoted(currentVoterName);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
